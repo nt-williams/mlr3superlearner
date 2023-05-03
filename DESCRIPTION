@@ -1,12 +1,15 @@
 Package: mlr3superlearner
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Super Learner Fitting and Prediction
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Authors@R: 
+    c(person(given = "Nicholas",
+             family = "Williams",
+             role = c("aut", "cre", "cph"),
+             email = "ntwilliams.personal@gmail.com", 
+             comment = c(ORCID = "0000-0002-1378-4831")))
+Description: An implementation of the Super Learner prediction algorithm using the \code{mlr3} framework.
+License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 Imports: 
@@ -14,7 +17,9 @@ Imports:
     data.table,
     glue,
     mlr3,
-    mlr3learners,
     SuperLearner
 Remotes: 
     mlr-org/mlr3extralearners
+RoxygenNote: 7.2.1
+Depends: 
+    mlr3learners
