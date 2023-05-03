@@ -1,4 +1,4 @@
-Package: SLmlr3
+Package: mlr3superlearner
 Type: Package
 Title: What the Package Does (Title Case)
 Version: 0.1.0
@@ -13,5 +13,6 @@ Imports:
     data.table,
     glue,
     mlr3,
-    mlr3extralearners,
     mlr3learners
+Remotes:  
+    mlr-org/mlr3extralearners

@@ -1,4 +1,4 @@
-SLmlr3 <- function(data, target, library, outcome_type = c("binomial", "continuous"), folds = 10L) {
+mlr3superlearner <- function(data, target, library, outcome_type = c("binomial", "continuous"), folds = 10L) {
   resampling <- mlr3::rsmp("cv", folds = folds)
   task <- make_mlr3_task(data, target, outcome_type)
   ensemble <- make_base_learners(library, outcome_type)
@@ -70,7 +70,8 @@ algos_classif <- list(glmnet = "cv_glmnet",
                       qda = "qda",
                       ranger = "ranger",
                       svm = "svm",
-                      xgboost = "xgboost")
+                      xgboost = "xgboost",
+                      earth = "earth")
 
 algos_regr <- list(glmnet = "cv_glmnet",
                    knn = "kknn",
@@ -78,8 +79,8 @@ algos_regr <- list(glmnet = "cv_glmnet",
                    glm = "lm",
                    naive_bayes = "naive_bayes",
                    nnet = "nnet",
-                   qda = "qda",
                    ranger = "ranger",
                    svm = "svm",
                    xgboost = "xgboost",
-                   bart = "bart")
+                   bart = "bart",
+                   earth = "earth")
