@@ -10,15 +10,16 @@ mlr3superlearner <- function(data, target, library, outcome_type = c("binomial",
   )
 
   ensemble <- lapply(ensemble, function(algo) algo$train(task))
-  sl <- list(learners = ensemble, weights = weights, outcome_type = outcome_type, folds = folds)
-  class(sl) <- "SLmlr3"
+  sl <- list(learners = ensemble, weights = weights, outcome_type = outcome_type, folds = folds,
+             x = setdiff(names(data), target))
+  class(sl) <- "mlr3superlearner"
   sl
 }
 
-predict.SLmlr3 <- function(object, newdata) {
+predict.mlr3superlearner <- function(object, newdata) {
   .f <- ifelse(object$outcome_type == "continuous",
-               function(x) x$predict_newdata(newdata)$response,
-               function(x) x$predict_newdata(newdata)$prob[, 2])
+               function(x) x$predict_newdata(newdata[, object$x])$response,
+               function(x) x$predict_newdata(newdata[, object$x])$prob[, "1"])
   z <- lapply(object$learners, .f)
   z <- matrix(Reduce(`c`, z), ncol = length(object$learners))
   SuperLearner::method.NNLS()$computePred(z, object$weights$coef)[, 1]
@@ -28,13 +29,13 @@ make_mlr3_task <- function(data, target, outcome_type) {
   if (outcome_type == "binomial") {
     task <- mlr3::as_task_classif(data,
                                   target = target,
-                                  id = "SLmlr3_training_task")
+                                  id = "mlr3superlearner_training_task")
     return(task)
   }
 
   mlr3::as_task_regr(data,
                      target = target,
-                     id = "SLmlr3_training_task")
+                     id = "mlr3superlearner_training_task")
 }
 
 make_base_learners <- function(library, outcome_type) {
@@ -66,12 +67,13 @@ algos_classif <- list(glmnet = "cv_glmnet",
                       lda = "lda",
                       glm = "log_reg",
                       naive_bayes = "naive_bayes",
-                      nnet = "nnet",
                       qda = "qda",
                       ranger = "ranger",
                       svm = "svm",
                       xgboost = "xgboost",
-                      earth = "earth")
+                      earth = "earth",
+                      lightgbm = "lightgbm",
+                      randomforest = "randomForest")
 
 algos_regr <- list(glmnet = "cv_glmnet",
                    knn = "kknn",
@@ -83,4 +85,6 @@ algos_regr <- list(glmnet = "cv_glmnet",
                    svm = "svm",
                    xgboost = "xgboost",
                    bart = "bart",
-                   earth = "earth")
+                   earth = "earth",
+                   lightgbm = "lightgbm",
+                   randomforest = "randomForest")

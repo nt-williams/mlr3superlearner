@@ -13,6 +13,7 @@ Imports:
     data.table,
     glue,
     mlr3,
-    mlr3learners
-Remotes:  
+    mlr3learners,
+    SuperLearner
+Remotes: 
     mlr-org/mlr3extralearners
