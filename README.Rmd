@@ -1,0 +1,43 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# mlr3superlearner
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+## Installation
+
+You can install the development version of mlr3superlearner from [GitHub](https://github.com/) with:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("nt-williams/mlr3superlearner")
+```
+
+## Example
+
+```{r example}
+library(mlr3superlearner)
+
+n <- 1e3
+W <- matrix(rnorm(n*3), ncol = 3)
+A <- rbinom(n, 1, 1 / (1 + exp(-(.2*W[,1] - .1*W[,2] + .4*W[,3]))))
+Y <- rbinom(n, 1, plogis(A + 0.2*W[,1] + 0.1*W[,2] + 0.2*W[,3]^2))
+tmp <- data.frame(W, A, Y)
+fit <- mlr3superlearner(tmp, "Y", c("glm", "glmnet"), "binomial")
+fit
+head(predict(fit, tmp))
+```

@@ -10,21 +10,31 @@ mlr3superlearner(
   library,
   outcome_type = c("binomial", "continuous"),
   folds = 10L,
-  newdata = NULL
+  newdata = NULL,
+  info = FALSE
 )
 }
 \arguments{
-\item{data}{A \code{data.frame} containing predictors and target variable.}
+\item{data}{[\code{data.frame}]\cr
+A \code{data.frame} containing predictors and target variable.}
 
-\item{target}{The name of the target variable in \code{data}.}
+\item{target}{[\code{character(1)}]\cr
+The name of the target variable in \code{data}.}
 
-\item{library}{A vector of algorithms to be used for prediction.}
+\item{library}{[\code{character}]\cr
+A vector of algorithms to be used for prediction.}
 
-\item{outcome_type}{The outcome variable type.}
+\item{outcome_type}{[\code{character(1)}]\cr
+The outcome variable type.}
 
-\item{folds}{The number of cross-validation folds.}
+\item{folds}{[\code{numeric(1)}]\cr
+The number of cross-validation folds.}
 
-\item{newdata}{A \code{list} of \code{data.frames} to generate predictions from.}
+\item{newdata}{[\code{list}]\cr
+A \code{list} of \code{data.frames} to generate predictions from.}
+
+\item{info}{[\code{logical(1)}]\cr
+Print learner fitting information to the console.}
 }
 \value{
 A list of class \code{mlr3superlearner}.

@@ -16,6 +16,7 @@ Imports:
     checkmate,
     data.table,
     glue,
+    lgr,
     mlr3,
     SuperLearner
 Remotes: 

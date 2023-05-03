@@ -2,12 +2,20 @@
 #'
 #' Implementation of the Super Learner algorithm using the `mlr3` framework.
 #'
-#' @param data A \code{data.frame} containing predictors and target variable.
-#' @param target The name of the target variable in \code{data}.
-#' @param library A vector of algorithms to be used for prediction.
-#' @param outcome_type The outcome variable type.
-#' @param folds The number of cross-validation folds.
-#' @param newdata A \code{list} of \code{data.frames} to generate predictions from.
+#' @param data [\code{data.frame}]\cr
+#'  A \code{data.frame} containing predictors and target variable.
+#' @param target [\code{character(1)}]\cr
+#'  The name of the target variable in \code{data}.
+#' @param library [\code{character}]\cr
+#'  A vector of algorithms to be used for prediction.
+#' @param outcome_type [\code{character(1)}]\cr
+#'  The outcome variable type.
+#' @param folds [\code{numeric(1)}]\cr
+#'  The number of cross-validation folds.
+#' @param newdata [\code{list}]\cr
+#'  A \code{list} of \code{data.frames} to generate predictions from.
+#' @param info [\code{logical(1)}]\cr
+#'  Print learner fitting information to the console.
 #'
 #' @return A list of class \code{mlr3superlearner}.
 #' @export
@@ -23,9 +31,14 @@
 #' predict(fit, tmp)
 mlr3superlearner <- function(data, target, library,
                              outcome_type = c("binomial", "continuous"),
-                             folds = 10L, newdata = NULL) {
+                             folds = 10L, newdata = NULL, info = FALSE) {
   checkmate::assert_character(target)
   checkmate::assert_number(folds)
+
+  if (info) {
+    lgr::get_logger("mlr3")$set_threshold("info")
+    on.exit(lgr::get_logger("mlr3")$set_threshold("warn"))
+  }
 
   resampling <- mlr3::rsmp("cv", folds = folds)
   task <- make_mlr3_task(data, target, outcome_type)
