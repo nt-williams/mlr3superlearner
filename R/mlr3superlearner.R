@@ -1,4 +1,26 @@
+#' Super Learner Algorithm
+#'
+#' Implementation of the Super Learner algorithm using the `mlr3` framework.
+#'
+#' @param data
+#' @param target
+#' @param library
+#' @param outcome_type
+#' @param folds
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' n <- 1e3
+#' W <- matrix(rnorm(n*3), ncol = 3)
+#' A <- rbinom(n, 1, 1 / (1 + exp(-(.2*W[,1] - .1*W[,2] + .4*W[,3]))))
+#' Y <- rbinom(n,1, plogis(A + 0.2*W[,1] + 0.1*W[,2] + 0.2*W[,3]^2 ))
+#' mlr3superlearner(tmp, "Y", c("glm", "xgboost", "ranger"), "binomial")
 mlr3superlearner <- function(data, target, library, outcome_type = c("binomial", "continuous"), folds = 10L) {
+  checkmate::assert_character(target)
+  checkmate::assert_number(folds)
+
   resampling <- mlr3::rsmp("cv", folds = folds)
   task <- make_mlr3_task(data, target, outcome_type)
   ensemble <- make_base_learners(library, outcome_type)
@@ -16,6 +38,15 @@ mlr3superlearner <- function(data, target, library, outcome_type = c("binomial",
   sl
 }
 
+#' Title
+#'
+#' @param object
+#' @param newdata
+#'
+#' @return
+#' @export
+#'
+#' @examples
 predict.mlr3superlearner <- function(object, newdata) {
   .f <- ifelse(object$outcome_type == "continuous",
                function(x) x$predict_newdata(newdata[, object$x])$response,
