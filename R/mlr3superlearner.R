@@ -85,7 +85,7 @@ predict.mlr3superlearner <- function(object, newdata) {
                function(x) x$predict_newdata(newdata[, object$x])$prob[, "1"])
   z <- lapply(object$learners, .f)
   z <- matrix(Reduce(`c`, z), ncol = length(object$learners))
-  SuperLearner::method.NNLS()$computePred(z, object$weights$coef)[, 1]
+  predict_nnls(z, object$weights$coef)
 }
 
 make_mlr3_task <- function(data, target, outcome_type) {
@@ -117,5 +117,5 @@ compute_super_learner_weights <- function(learners, y, outcome_type) {
               })
   x <- matrix(Reduce(`c`, x), ncol = length(learners))
   ids <- unlist(lapply(learners, function(x) x$learner$id))
-  SuperLearner::method.NNLS()$computeCoef(x, y, ids, FALSE, 1)
+  meta_nnls(x, y, ids, 1)
 }
