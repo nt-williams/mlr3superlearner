@@ -41,3 +41,11 @@ fit <- mlr3superlearner(tmp, "Y", c("glm", "glmnet"), "binomial")
 fit
 head(predict(fit, tmp))
 ```
+
+## Available learners
+
+```{r}
+knitr::kable(available_learners("binomial"))
+knitr::kable(available_learners("continuous"))
+```
+

@@ -31,8 +31,55 @@ tmp <- data.frame(W, A, Y)
 fit <- mlr3superlearner(tmp, "Y", c("glm", "glmnet"), "binomial")
 fit
 #>                        Risk       Coef
-#> classif.log_reg   0.2079324 0.93251894
-#> classif.cv_glmnet 0.2136061 0.06748106
+#> classif.log_reg   0.2163408 0.92109396
+#> classif.cv_glmnet 0.2215115 0.07890604
 head(predict(fit, tmp))
-#> [1] 0.7588227 0.7728591 0.5877769 0.7317636 0.7589385 0.7867102
+#> [1] 0.5311778 0.5327415 0.5284609 0.7396454 0.5712509 0.5805620
 ```
+
+## Available learners
+
+``` r
+knitr::kable(available_learners("binomial"))
+```
+
+| learner         | mlr3_learner         | mlr3_package      | learner_package |
+|:----------------|:---------------------|:------------------|:----------------|
+| glm             | classif.log_reg      | mlr3learners      | stats           |
+| glmnet          | classif.cv_glmnet    | mlr3learners      | glmnet          |
+| knn             | classif.kknn         | mlr3learners      | kknn            |
+| lda             | classif.lda          | mlr3learners      | MASS            |
+| naivebayes      | classif.naive_bayes  | mlr3learners      | e1071           |
+| qda             | classif.qda          | mlr3learners      | MASS            |
+| ranger          | classif.ranger       | mlr3learners      | ranger          |
+| svm             | classif.svm          | mlr3learners      | e1071           |
+| xgboost         | classif.xgboost      | mlr3learners      | xgboost         |
+| earth           | classif.earth        | mlr3extralearners | earth           |
+| lightgbm        | classif.lightgbm     | mlr3extralearners | lightgbm        |
+| randomforest    | classif.randomForest | mlr3extralearners | randomForest    |
+| bart            | classif.bart         | mlr3extralearners | dbarts          |
+| c50             | classif.C50          | mlr3extralearners | C50             |
+| gam             | classif.gam          | mlr3extralearners | mgcv            |
+| gaussianprocess | classif.gausspr      | mlr3extralearners | kernlab         |
+| glmboost        | classif.glmboost     | mlr3extralearners | mboost          |
+
+``` r
+knitr::kable(available_learners("continuous"))
+```
+
+| learner         | mlr3_learner      | mlr3_package      | learner_package |
+|:----------------|:------------------|:------------------|:----------------|
+| glm             | regr.glm          | mlr3learners      | stats           |
+| glmnet          | regr.cv_glmnet    | mlr3learners      | glmnet          |
+| knn             | regr.kknn         | mlr3learners      | kknn            |
+| nnet            | regr.nnet         | mlr3learners      | nnet            |
+| ranger          | regr.ranger       | mlr3learners      | ranger          |
+| svm             | regr.svm          | mlr3learners      | e1071           |
+| xgboost         | regr.xgboost      | mlr3learners      | xgboost         |
+| earth           | regr.earth        | mlr3extralearners | earth           |
+| lightgbm        | regr.lightgbm     | mlr3extralearners | lightgbm        |
+| randomforest    | regr.randomForest | mlr3extralearners | randomForest    |
+| bart            | regr.bart         | mlr3extralearners | dbarts          |
+| gam             | regr.gam          | mlr3extralearners | mgcv            |
+| gaussianprocess | regr.gausspr      | mlr3extralearners | kernlab         |
+| glmboost        | regr.glmboost     | mlr3extralearners | mboost          |

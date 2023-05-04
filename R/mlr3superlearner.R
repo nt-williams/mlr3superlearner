@@ -74,20 +74,19 @@ mlr3superlearner <- function(data, target, library,
 }
 
 make_mlr3_task <- function(data, target, outcome_type) {
-  if (outcome_type == "binomial") {
-    task <- mlr3::as_task_classif(data,
-                                  target = target,
-                                  id = "mlr3superlearner_training_task")
-    return(task)
-  }
+  args <- list(x = data,
+               target = target,
+               id = "mlr3superlearner_training_task")
 
-  mlr3::as_task_regr(data,
-                     target = target,
-                     id = "mlr3superlearner_training_task")
+  switch(outcome_type,
+         binomial = do.call(as_task_classif, args),
+         continuous = do.call(as_task_regr, args))
 }
 
 make_base_learners <- function(library, outcome_type) {
-  mlr3::lrns(lookup(library, outcome_type))
+  args <- list(.keys = lookup(library, outcome_type))
+  if (outcome_type == "binomial") args$predict_type <- "prob"
+  do.call(mlr3::lrns, args)
 }
 
 compute_super_learner_weights <- function(learners, y, outcome_type) {
