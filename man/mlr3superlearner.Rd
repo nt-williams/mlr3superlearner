@@ -11,6 +11,7 @@ mlr3superlearner(
   outcome_type = c("binomial", "continuous"),
   folds = 10L,
   newdata = NULL,
+  group = NULL,
   info = FALSE
 )
 }
@@ -32,6 +33,8 @@ The number of cross-validation folds.}
 
 \item{newdata}{[\code{list}]\cr
 A \code{list} of \code{data.frames} to generate predictions from.}
+
+\item{group}{[\code{logical(1)}]\cr}
 
 \item{info}{[\code{logical(1)}]\cr
 Print learner fitting information to the console.}
