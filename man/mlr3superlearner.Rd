@@ -34,7 +34,10 @@ The number of cross-validation folds.}
 \item{newdata}{[\code{list}]\cr
 A \code{list} of \code{data.frames} to generate predictions from.}
 
-\item{group}{[\code{logical(1)}]\cr}
+\item{group}{[\code{character(1)}]\cr
+Name of a grouping variable in \code{data}. Assumed to be discrete;
+observations in the same group are treated like a "block" of observations
+kept together during sample splitting.}
 
 \item{info}{[\code{logical(1)}]\cr
 Print learner fitting information to the console.}
