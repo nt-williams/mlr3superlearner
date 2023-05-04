@@ -14,6 +14,7 @@
 #'  The number of cross-validation folds.
 #' @param newdata [\code{list}]\cr
 #'  A \code{list} of \code{data.frames} to generate predictions from.
+#' @param group [\code{logical(1)}]\cr
 #' @param info [\code{logical(1)}]\cr
 #'  Print learner fitting information to the console.
 #'
@@ -31,7 +32,7 @@
 #' predict(fit, tmp)
 mlr3superlearner <- function(data, target, library,
                              outcome_type = c("binomial", "continuous"),
-                             folds = 10L, newdata = NULL, info = FALSE) {
+                             folds = 10L, newdata = NULL, group = NULL, info = FALSE) {
   checkmate::assert_character(target)
   checkmate::assert_number(folds)
 
@@ -42,6 +43,11 @@ mlr3superlearner <- function(data, target, library,
 
   resampling <- mlr3::rsmp("cv", folds = folds)
   task <- make_mlr3_task(data, target, outcome_type)
+
+  if (!is.null(group)) {
+    task$set_col_roles(group, "group")
+  }
+
   ensemble <- make_base_learners(library, outcome_type)
 
   weights <- compute_super_learner_weights(
