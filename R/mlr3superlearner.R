@@ -39,6 +39,8 @@ mlr3superlearner <- function(data, target, library,
   checkmate::assert_character(target)
   checkmate::assert_number(folds)
 
+  ensemble <- make_base_learners(library, outcome_type)
+
   if (info) {
     lgr::get_logger("mlr3")$set_threshold("info")
     on.exit(lgr::get_logger("mlr3")$set_threshold("warn"))
@@ -50,8 +52,6 @@ mlr3superlearner <- function(data, target, library,
   if (!is.null(group)) {
     task$set_col_roles(group, "group")
   }
-
-  ensemble <- make_base_learners(library, outcome_type)
 
   weights <- compute_super_learner_weights(
     lapply(ensemble, function(algo) mlr3::resample(task, algo, resampling)),
@@ -84,6 +84,7 @@ make_mlr3_task <- function(data, target, outcome_type) {
 }
 
 make_base_learners <- function(library, outcome_type) {
+  has_necessary_packages(library, outcome_type)
   args <- list(.keys = lookup(library, outcome_type))
   if (outcome_type == "binomial") args$predict_type <- "prob"
   do.call(mlr3::lrns, args)
