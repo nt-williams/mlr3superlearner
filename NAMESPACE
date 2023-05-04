@@ -2,4 +2,5 @@
 
 S3method(predict,mlr3superlearner)
 S3method(print,mlr3superlearner)
+export(available_learners)
 export(mlr3superlearner)

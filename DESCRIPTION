@@ -14,11 +14,11 @@ Encoding: UTF-8
 LazyData: true
 Imports: 
     checkmate,
-    data.table,
     glue,
     lgr,
     mlr3,
-    nnls
+    nnls, 
+    data.table
 Remotes: 
     mlr-org/mlr3extralearners
 RoxygenNote: 7.2.1

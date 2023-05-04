@@ -73,24 +73,6 @@ mlr3superlearner <- function(data, target, library,
   sl
 }
 
-#' Predict method for \code{mlr3superlearner} object
-#'
-#' @param object An object returned from \code{mlr3superlearner()}.
-#' @param newdata A \code{data.frame} to return predictions from.
-#'
-#' @return Predicted values.
-#' @exportS3Method
-#'
-#' @seealso \code{\link{mlr3superlearner}}
-predict.mlr3superlearner <- function(object, newdata) {
-  .f <- ifelse(object$outcome_type == "continuous",
-               function(x) x$predict_newdata(newdata[, object$x])$response,
-               function(x) x$predict_newdata(newdata[, object$x])$prob[, "1"])
-  z <- lapply(object$learners, .f)
-  z <- matrix(Reduce(`c`, z), ncol = length(object$learners))
-  predict_nnls(z, object$weights$coef)
-}
-
 make_mlr3_task <- function(data, target, outcome_type) {
   if (outcome_type == "binomial") {
     task <- mlr3::as_task_classif(data,
@@ -105,18 +87,14 @@ make_mlr3_task <- function(data, target, outcome_type) {
 }
 
 make_base_learners <- function(library, outcome_type) {
-  predicate <- ifelse(outcome_type == "binomial", "classif", "regr")
-  if (predicate == "classif") {
-    return(mlr3::lrns(glue::glue("classif.{lookup_algos(library, 'classif')}"), predict_type = "prob"))
-  }
-  mlr3::lrns(glue::glue("regr.{lookup_algos(library, 'regr')}"))
+  mlr3::lrns(lookup(library, outcome_type))
 }
 
 compute_super_learner_weights <- function(learners, y, outcome_type) {
   x <- lapply(learners,
               function(x) {
                 preds <- data.table::as.data.table(x$prediction())
-                preds[order(preds$row_ids), ifelse(outcome_type == "continuous", "response", "prob.1")]
+                preds[order(preds$row_ids), ][[ifelse(outcome_type == "continuous", "response", "prob.1")]]
               })
   x <- matrix(Reduce(`c`, x), ncol = length(learners))
   ids <- unlist(lapply(learners, function(x) x$learner$id))
