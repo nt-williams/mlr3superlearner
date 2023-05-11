@@ -4,8 +4,7 @@
 #'
 #' @param data [\code{data.frame}]\cr
 #'  A \code{data.frame} containing predictors and target variable.
-#' @param target [\code{character(1)}]\cr
-#'  The name of the target variable in \code{data}.
+#' @param formula [\code{formula}]\cr
 #' @param library [\code{character}]\cr
 #'  A vector of algorithms to be used for prediction.
 #' @param outcome_type [\code{character(1)}]\cr
@@ -26,17 +25,17 @@
 #'
 #' @examples
 #' library(mlr3superlearner)
-#' n <- 1e3
-#' W <- matrix(rnorm(n*3), ncol = 3)
+#' n <- 1e4
+#' W <- matrix(rbinom(n*3, size = 1, prob = 0.5), ncol = 3)
 #' A <- rbinom(n, 1, 1 / (1 + exp(-(.2*W[,1] - .1*W[,2] + .4*W[,3]))))
-#' Y <- rbinom(n,1, plogis(A + 0.2*W[,1] + 0.1*W[,2] + 0.2*W[,3]^2 ))
+#' Y <- rbinom(n, 1, plogis(A + 0.2*W[,1] + 0.1*W[,2] + 0.2*W[,3]))
 #' tmp <- data.frame(W, A, Y)
-#' fit <- mlr3superlearner(tmp, "Y", c("glm", "glmnet"), "binomial")
+#' fit <- mlr3superlearner(tmp, Y ~ -1 + .^4, c("glm", "glmnet"), "binomial", 5, list(tmp))
 #' predict(fit, tmp)
-mlr3superlearner <- function(data, target, library,
+mlr3superlearner <- function(data, formula, library,
                              outcome_type = c("binomial", "continuous"),
                              folds = 10L, newdata = NULL, group = NULL, info = FALSE) {
-  checkmate::assert_character(target)
+  # checkmate::assert_character(target)
   checkmate::assert_number(folds)
 
   ensemble <- make_base_learners(library, outcome_type)
@@ -47,21 +46,18 @@ mlr3superlearner <- function(data, target, library,
   }
 
   resampling <- mlr3::rsmp("cv", folds = folds)
-  task <- make_mlr3_task(data, target, outcome_type)
-
-  if (!is.null(group)) {
-    task$set_col_roles(group, "group")
-  }
+  task <- make_mlr3_task(data, formula, group, outcome_type)
 
   weights <- compute_super_learner_weights(
-    lapply(ensemble, function(algo) mlr3::resample(task, algo, resampling)),
-    y = data[[target]],
+    lapply(ensemble, function(algo) mlr3::resample(task, algo, resampling, store_models = T)),
+    y = data[[task$col_roles$target]],
     outcome_type
   )
 
   ensemble <- lapply(ensemble, function(algo) algo$train(task))
-  sl <- list(learners = ensemble, weights = weights, outcome_type = outcome_type, folds = folds,
-             x = setdiff(names(data), target))
+  sl <- list(learners = ensemble, weights = weights,
+             outcome_type = outcome_type, folds = folds,
+             formula = formula)
   class(sl) <- "mlr3superlearner"
 
   if (is.null(newdata)) {
@@ -73,14 +69,31 @@ mlr3superlearner <- function(data, target, library,
   sl
 }
 
-make_mlr3_task <- function(data, target, outcome_type) {
-  args <- list(x = data,
-               target = target,
+make_mlr3_task <- function(data, formula, group, outcome_type) {
+  pop <- mlr3pipelines::po("modelmatrix", formula = formula)
+
+  if (!is.null(group)) {
+    id <- data[[group]]
+    data <- data[, setdiff(names(data), group)]
+  }
+
+  args <- list(x = formula,
+               data = data,
                id = "mlr3superlearner_training_task")
 
-  switch(outcome_type,
-         binomial = do.call(as_task_classif, args),
-         continuous = do.call(as_task_regr, args))
+  task <- switch(outcome_type,
+                 binomial = do.call(as_task_classif, args),
+                 continuous = do.call(as_task_regr, args))
+
+  task <- pop$train(list(task))$output
+  if (is.null(group)) {
+    return(task)
+  }
+
+  foo <- data.frame(tmp = id)
+  names(foo) <- group
+  task$cbind(foo)
+  task$set_col_roles(group, "group")
 }
 
 make_base_learners <- function(library, outcome_type) {

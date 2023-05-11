@@ -4,6 +4,9 @@
 # mlr3superlearner
 
 <!-- badges: start -->
+
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
 ## Installation
@@ -28,13 +31,19 @@ W <- matrix(rnorm(n*3), ncol = 3)
 A <- rbinom(n, 1, 1 / (1 + exp(-(.2*W[,1] - .1*W[,2] + .4*W[,3]))))
 Y <- rbinom(n, 1, plogis(A + 0.2*W[,1] + 0.1*W[,2] + 0.2*W[,3]^2))
 tmp <- data.frame(W, A, Y)
-fit <- mlr3superlearner(tmp, "Y", c("glm", "glmnet"), "binomial")
+fit <- mlr3superlearner(tmp, Y ~ -1 + ., c("glm", "glmnet"), "binomial")
 fit
-#>                        Risk       Coef
-#> classif.log_reg   0.2163408 0.92109396
-#> classif.cv_glmnet 0.2215115 0.07890604
+#>                        Risk      Coef
+#> classif.log_reg   0.2121975 0.8595963
+#> classif.cv_glmnet 0.2167867 0.1404037
 head(predict(fit, tmp))
-#> [1] 0.5311778 0.5327415 0.5284609 0.7396454 0.5712509 0.5805620
+#>           [,1]
+#> [1,] 0.8205302
+#> [2,] 0.7543708
+#> [3,] 0.5480276
+#> [4,] 0.7550671
+#> [5,] 0.5574172
+#> [6,] 0.7740882
 ```
 
 ## Available learners
@@ -48,6 +57,7 @@ knitr::kable(available_learners("binomial"))
 | glm             | classif.log_reg      | mlr3learners      | stats           |
 | glmnet          | classif.cv_glmnet    | mlr3learners      | glmnet          |
 | knn             | classif.kknn         | mlr3learners      | kknn            |
+| nnet            | classif.nnet         | mlr3learners      | nnet            |
 | lda             | classif.lda          | mlr3learners      | MASS            |
 | naivebayes      | classif.naive_bayes  | mlr3learners      | e1071           |
 | qda             | classif.qda          | mlr3learners      | MASS            |
@@ -69,7 +79,7 @@ knitr::kable(available_learners("continuous"))
 
 | learner         | mlr3_learner      | mlr3_package      | learner_package |
 |:----------------|:------------------|:------------------|:----------------|
-| glm             | regr.glm          | mlr3learners      | stats           |
+| glm             | regr.lm           | mlr3learners      | stats           |
 | glmnet          | regr.cv_glmnet    | mlr3learners      | glmnet          |
 | knn             | regr.kknn         | mlr3learners      | kknn            |
 | nnet            | regr.nnet         | mlr3learners      | nnet            |

@@ -19,7 +19,8 @@ Imports:
     mlr3,
     nnls,
     data.table,
-    quadprog
+    quadprog,
+    mlr3pipelines
 Remotes: 
     mlr-org/mlr3extralearners
 RoxygenNote: 7.2.1

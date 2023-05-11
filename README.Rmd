@@ -16,6 +16,7 @@ knitr::opts_chunk$set(
 # mlr3superlearner
 
 <!-- badges: start -->
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
 ## Installation
@@ -37,7 +38,7 @@ W <- matrix(rnorm(n*3), ncol = 3)
 A <- rbinom(n, 1, 1 / (1 + exp(-(.2*W[,1] - .1*W[,2] + .4*W[,3]))))
 Y <- rbinom(n, 1, plogis(A + 0.2*W[,1] + 0.1*W[,2] + 0.2*W[,3]^2))
 tmp <- data.frame(W, A, Y)
-fit <- mlr3superlearner(tmp, "Y", c("glm", "glmnet"), "binomial")
+fit <- mlr3superlearner(tmp, Y ~ -1 + ., c("glm", "glmnet"), "binomial")
 fit
 head(predict(fit, tmp))
 ```

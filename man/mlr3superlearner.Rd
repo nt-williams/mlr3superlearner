@@ -6,7 +6,7 @@
 \usage{
 mlr3superlearner(
   data,
-  target,
+  formula,
   library,
   outcome_type = c("binomial", "continuous"),
   folds = 10L,
@@ -19,8 +19,7 @@ mlr3superlearner(
 \item{data}{[\code{data.frame}]\cr
 A \code{data.frame} containing predictors and target variable.}
 
-\item{target}{[\code{character(1)}]\cr
-The name of the target variable in \code{data}.}
+\item{formula}{[\code{formula}]\cr}
 
 \item{library}{[\code{character}]\cr
 A vector of algorithms to be used for prediction.}
@@ -50,11 +49,11 @@ Implementation of the Super Learner algorithm using the `mlr3` framework.
 }
 \examples{
 library(mlr3superlearner)
-n <- 1e3
-W <- matrix(rnorm(n*3), ncol = 3)
+n <- 1e4
+W <- matrix(rbinom(n*3, size = 1, prob = 0.5), ncol = 3)
 A <- rbinom(n, 1, 1 / (1 + exp(-(.2*W[,1] - .1*W[,2] + .4*W[,3]))))
-Y <- rbinom(n,1, plogis(A + 0.2*W[,1] + 0.1*W[,2] + 0.2*W[,3]^2 ))
+Y <- rbinom(n, 1, plogis(A + 0.2*W[,1] + 0.1*W[,2] + 0.2*W[,3]))
 tmp <- data.frame(W, A, Y)
-fit <- mlr3superlearner(tmp, "Y", c("glm", "glmnet"), "binomial")
+fit <- mlr3superlearner(tmp, Y ~ -1 + .^4, c("glm", "glmnet"), "binomial", 5, list(tmp))
 predict(fit, tmp)
 }
