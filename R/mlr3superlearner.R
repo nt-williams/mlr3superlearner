@@ -98,5 +98,6 @@ compute_super_learner_weights <- function(learners, y, outcome_type) {
               })
   x <- matrix(Reduce(`c`, x), ncol = length(learners))
   ids <- unlist(lapply(learners, function(x) x$learner$id))
-  meta_nnls(x, y, ids, 1)
+  # meta_nnls(x, y, ids, 1)
+  meta_CC_LS(x, y, ids, 1)
 }

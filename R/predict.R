@@ -13,5 +13,6 @@ predict.mlr3superlearner <- function(object, newdata) {
                function(x) x$predict_newdata(newdata[, object$x])$prob[, "1"])
   z <- lapply(object$learners, .f)
   z <- matrix(Reduce(`c`, z), ncol = length(object$learners))
-  predict_nnls(z, object$weights$coef)
+  # predict_nnls(z, object$weights$coef)
+  predict_CC_LS(z, object$weights$coef)
 }
