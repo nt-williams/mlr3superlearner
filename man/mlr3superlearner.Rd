@@ -8,6 +8,7 @@ mlr3superlearner(
   data,
   target,
   library,
+  metalearner,
   outcome_type = c("binomial", "continuous"),
   folds = 10L,
   newdata = NULL,
@@ -24,6 +25,8 @@ The name of the target variable in \code{data}.}
 
 \item{library}{[\code{character}]\cr
 A vector of algorithms to be used for prediction.}
+
+\item{metalearner}{[\code{character(1)}]\cr}
 
 \item{outcome_type}{[\code{character(1)}]\cr
 The outcome variable type.}
@@ -55,6 +58,6 @@ W <- matrix(rnorm(n*3), ncol = 3)
 A <- rbinom(n, 1, 1 / (1 + exp(-(.2*W[,1] - .1*W[,2] + .4*W[,3]))))
 Y <- rbinom(n,1, plogis(A + 0.2*W[,1] + 0.1*W[,2] + 0.2*W[,3]^2 ))
 tmp <- data.frame(W, A, Y)
-fit <- mlr3superlearner(tmp, "Y", c("glm", "glmnet"), "binomial")
+fit <- mlr3superlearner(tmp, "Y", c("glm", "glmnet"), "glm", "binomial")
 predict(fit, tmp)
 }

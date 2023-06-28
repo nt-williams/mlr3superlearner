@@ -9,10 +9,12 @@
 #' @seealso \code{\link{mlr3superlearner}}
 predict.mlr3superlearner <- function(object, newdata) {
   .f <- ifelse(object$outcome_type == "continuous",
-               function(x) x$predict_newdata(newdata[, object$x, drop = F])$response,
-               function(x) x$predict_newdata(newdata[, object$x, drop = F])$prob[, "1"])
-  z <- lapply(object$learners, .f)
+               function(x, data) x$predict_newdata(data)$response,
+               function(x, data) x$predict_newdata(data)$prob[, "1"])
+
+  z <- lapply(object$learners, .f, newdata[, object$x, drop = F])
   z <- matrix(Reduce(`c`, z), ncol = length(object$learners))
-  # predict_nnls(z, object$weights$coef)
-  predict_CC_LS(z, object$weights$coef)
+  colnames(z) <- names(object$learners)
+
+  .f(object$metalearner, as.data.frame(z))
 }

@@ -8,6 +8,7 @@
 #'  The name of the target variable in \code{data}.
 #' @param library [\code{character}]\cr
 #'  A vector of algorithms to be used for prediction.
+#' @param metalearner [\code{character(1)}]\cr
 #' @param outcome_type [\code{character(1)}]\cr
 #'  The outcome variable type.
 #' @param folds [\code{numeric(1)}]\cr
@@ -31,13 +32,16 @@
 #' A <- rbinom(n, 1, 1 / (1 + exp(-(.2*W[,1] - .1*W[,2] + .4*W[,3]))))
 #' Y <- rbinom(n,1, plogis(A + 0.2*W[,1] + 0.1*W[,2] + 0.2*W[,3]^2 ))
 #' tmp <- data.frame(W, A, Y)
-#' fit <- mlr3superlearner(tmp, "Y", c("glm", "glmnet"), "binomial")
+#' fit <- mlr3superlearner(tmp, "Y", c("glm", "glmnet"), "glm", "binomial")
 #' predict(fit, tmp)
-mlr3superlearner <- function(data, target, library,
+mlr3superlearner <- function(data, target, library, metalearner,
                              outcome_type = c("binomial", "continuous"),
                              folds = 10L, newdata = NULL, group = NULL, info = FALSE) {
-  checkmate::assert_character(target)
+  checkmate::assert_character(target, len = 1)
+  checkmate::assert_character(library)
+  checkmate::assert_character(metalearner, len = 1)
   checkmate::assert_number(folds)
+  checkmate::assert_list(newdata, types = "list", null.ok = TRUE)
 
   ensemble <- make_base_learners(library, outcome_type)
 
@@ -53,15 +57,21 @@ mlr3superlearner <- function(data, target, library,
     task$set_col_roles(group, "group")
   }
 
-  weights <- compute_super_learner_weights(
+  meta <- compute_super_learner_weights(
     lapply(ensemble, function(algo) mlr3::resample(task, algo, resampling)),
     y = data[[target]],
+    metalearner,
     outcome_type
   )
 
   ensemble <- lapply(ensemble, function(algo) algo$train(task))
-  sl <- list(learners = ensemble, weights = weights, outcome_type = outcome_type, folds = folds,
+  sl <- list(learners = ensemble,
+             metalearner = meta$metalearner,
+             risk = meta$risk,
+             outcome_type = outcome_type,
+             folds = folds,
              x = setdiff(names(data), target))
+
   class(sl) <- "mlr3superlearner"
 
   if (is.null(newdata)) {
@@ -90,7 +100,7 @@ make_base_learners <- function(library, outcome_type) {
   do.call(mlr3::lrns, args)
 }
 
-compute_super_learner_weights <- function(learners, y, outcome_type) {
+compute_super_learner_weights <- function(learners, y, metalearner, outcome_type) {
   x <- lapply(learners,
               function(x) {
                 preds <- data.table::as.data.table(x$prediction())
@@ -98,6 +108,15 @@ compute_super_learner_weights <- function(learners, y, outcome_type) {
               })
   x <- matrix(Reduce(`c`, x), ncol = length(learners))
   ids <- unlist(lapply(learners, function(x) x$learner$id))
-  # meta_nnls(x, y, ids, 1)
-  meta_CC_LS(x, y, ids, 1)
+  cvRisk <- apply(x, 2, function(X) mean((X - y)^2))
+  names(cvRisk) <- ids
+  colnames(x) <- ids
+  tmp <- data.frame(x, y)
+  task <- make_mlr3_task(tmp, "y", outcome_type)
+  has_necessary_packages(metalearner, outcome_type)
+  args <- list(.key = lookup(metalearner, outcome_type))
+  if (outcome_type == "binomial") args$predict_type <- "prob"
+  metalearner <- do.call(mlr3::lrn, args)
+  metalearner$train(task)
+  list(risk = cvRisk, metalearner = metalearner)
 }
