@@ -42,8 +42,9 @@ fit <- mlr3superlearner(mtcars, "mpg", c("glm", "svm", "ranger"), "glm", "contin
 # With hyperparameters
 fit <- mlr3superlearner(mtcars, "mpg", 
                         list("glm", "xgboost", "svm",
-                             list("nnet", trace = FALSE), 
-                             list("ranger", num.trees = 1000)), 
+                             list("nnet", trace = FALSE),
+                             list("ranger", num.trees = 500, id = "ranger1"),
+                             list("ranger", num.trees = 1000, id = "ranger2")), 
                         "glm", "continuous")
 
 fit

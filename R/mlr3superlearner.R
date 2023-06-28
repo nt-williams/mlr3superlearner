@@ -96,26 +96,23 @@ make_mlr3_task <- function(data, target, outcome_type) {
 make_base_learners <- function(library, outcome_type) {
   if (is.list(library)) {
     has_necessary_packages(purrr::map_chr(library, 1), outcome_type)
-    args <- list(.keys = lookup(purrr::map_chr(library, 1), outcome_type))
+
+    stack <- lapply(library, function(info) {
+      args <- as.list(info)[-1]
+      args$.key <- lookup(info[[1]], outcome_type)
+      args$id <- make_learner_id(info, outcome_type)
+      if (outcome_type == "binomial") args$predict_type <- "prob"
+
+      do.call(mlr3::lrn, args)
+    })
   } else {
     has_necessary_packages(library, outcome_type)
+
     args <- list(.keys = lookup(library, outcome_type))
+    if (outcome_type == "binomial") args$predict_type <- "prob"
+    stack <- do.call(mlr3::lrns, args)
   }
 
-  if (outcome_type == "binomial") args$predict_type <- "prob"
-  stack <- do.call(mlr3::lrns, args)
-
-  if (is.list(library)) {
-    library <- library[order(purrr::map_chr(library, 1))]
-    for (i in 1:length(library)) {
-      if (!is.list(library[[i]])) {
-        next
-      }
-
-      stack[[i]]$param_set$values <- mlr3misc::insert_named(stack[[i]]$param_set$values,
-                                                            library[[i]][-1])
-    }
-  }
   stack
 }
 
