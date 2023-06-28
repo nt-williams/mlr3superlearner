@@ -4,7 +4,15 @@
 # mlr3superlearner
 
 <!-- badges: start -->
+
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![R-CMD-check](https://github.com/nt-williams/mlr3superlearner/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/nt-williams/mlr3superlearner/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
+
+An implementation of the [Super
+Learner](https://biostats.bepress.com/ucbbiostat/paper266/) prediction
+algorithm using the [mlr3](https://mlr3.mlr-org.com/) framework.
 
 ## Installation
 
@@ -31,10 +39,10 @@ tmp <- data.frame(W, A, Y)
 fit <- mlr3superlearner(tmp, "Y", c("glm", "glmnet"), "glm", "binomial")
 fit
 #>                        Risk
-#> classif.log_reg   0.2073148
-#> classif.cv_glmnet 0.2117570
+#> classif.log_reg   0.2120545
+#> classif.cv_glmnet 0.2165303
 head(predict(fit, tmp))
-#> [1] 0.7937400 0.5356450 0.5930691 0.5037036 0.7683533 0.7968610
+#> [1] 0.8027991 0.5724265 0.7911470 0.5481631 0.7012196 0.4837062
 ```
 
 ## Available learners

@@ -16,7 +16,11 @@ knitr::opts_chunk$set(
 # mlr3superlearner
 
 <!-- badges: start -->
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![R-CMD-check](https://github.com/nt-williams/mlr3superlearner/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/nt-williams/mlr3superlearner/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
+
+An implementation of the [Super Learner](https://biostats.bepress.com/ucbbiostat/paper266/) prediction algorithm using the [mlr3](https://mlr3.mlr-org.com/) framework.
 
 ## Installation
 
