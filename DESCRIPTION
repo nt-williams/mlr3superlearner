@@ -17,9 +17,8 @@ Imports:
     glue,
     lgr,
     mlr3,
-    nnls,
     data.table,
-    quadprog
+    purrr
 Remotes: 
     mlr-org/mlr3extralearners
 RoxygenNote: 7.2.1

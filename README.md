@@ -4,7 +4,15 @@
 # mlr3superlearner
 
 <!-- badges: start -->
+
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![R-CMD-check](https://github.com/nt-williams/mlr3superlearner/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/nt-williams/mlr3superlearner/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
+
+An implementation of the [Super
+Learner](https://biostats.bepress.com/ucbbiostat/paper266/) prediction
+algorithm using the [mlr3](https://mlr3.mlr-org.com/) framework.
 
 ## Installation
 
@@ -23,18 +31,32 @@ library(mlr3superlearner)
 #> Loading required package: mlr3learners
 #> Loading required package: mlr3
 
-n <- 1e3
-W <- matrix(rnorm(n*3), ncol = 3)
-A <- rbinom(n, 1, 1 / (1 + exp(-(.2*W[,1] - .1*W[,2] + .4*W[,3]))))
-Y <- rbinom(n, 1, plogis(A + 0.2*W[,1] + 0.1*W[,2] + 0.2*W[,3]^2))
-tmp <- data.frame(W, A, Y)
-fit <- mlr3superlearner(tmp, "Y", c("glm", "glmnet"), "binomial")
+# No hyperparameters
+fit <- mlr3superlearner(mtcars, "mpg", c("glm", "svm", "ranger"), "glm", "continuous")
+
+# With hyperparameters
+fit <- mlr3superlearner(mtcars, "mpg", 
+                        list("glm", "xgboost", "svm",
+                             list("nnet", trace = FALSE), 
+                             list("ranger", num.trees = 1000)), 
+                        "glm", "continuous")
+
 fit
-#>                        Risk       Coef
-#> classif.log_reg   0.2163408 0.92109396
-#> classif.cv_glmnet 0.2215115 0.07890604
-head(predict(fit, tmp))
-#> [1] 0.5311778 0.5327415 0.5284609 0.7396454 0.5712509 0.5805620
+#>                    Risk
+#> regr.lm       16.049056
+#> regr.nnet     35.562139
+#> regr.ranger    5.649881
+#> regr.svm      12.430873
+#> regr.xgboost 225.399161
+
+head(data.frame(pred = predict(fit, mtcars), truth = mtcars$mpg))
+#>       pred truth
+#> 1 20.58112  21.0
+#> 2 20.84844  21.0
+#> 3 22.46904  22.8
+#> 4 20.78397  21.4
+#> 5 17.87287  18.7
+#> 6 19.00376  18.1
 ```
 
 ## Available learners
@@ -48,6 +70,7 @@ knitr::kable(available_learners("binomial"))
 | glm             | classif.log_reg      | mlr3learners      | stats           |
 | glmnet          | classif.cv_glmnet    | mlr3learners      | glmnet          |
 | knn             | classif.kknn         | mlr3learners      | kknn            |
+| nnet            | classif.nnet         | mlr3learners      | nnet            |
 | lda             | classif.lda          | mlr3learners      | MASS            |
 | naivebayes      | classif.naive_bayes  | mlr3learners      | e1071           |
 | qda             | classif.qda          | mlr3learners      | MASS            |
@@ -69,7 +92,7 @@ knitr::kable(available_learners("continuous"))
 
 | learner         | mlr3_learner      | mlr3_package      | learner_package |
 |:----------------|:------------------|:------------------|:----------------|
-| glm             | regr.glm          | mlr3learners      | stats           |
+| glm             | regr.lm           | mlr3learners      | stats           |
 | glmnet          | regr.cv_glmnet    | mlr3learners      | glmnet          |
 | knn             | regr.kknn         | mlr3learners      | kknn            |
 | nnet            | regr.nnet         | mlr3learners      | nnet            |
