@@ -36,14 +36,19 @@ devtools::install_github("nt-williams/mlr3superlearner")
 ```{r example}
 library(mlr3superlearner)
 
-n <- 1e3
-W <- matrix(rnorm(n*3), ncol = 3)
-A <- rbinom(n, 1, 1 / (1 + exp(-(.2*W[,1] - .1*W[,2] + .4*W[,3]))))
-Y <- rbinom(n, 1, plogis(A + 0.2*W[,1] + 0.1*W[,2] + 0.2*W[,3]^2))
-tmp <- data.frame(W, A, Y)
-fit <- mlr3superlearner(tmp, "Y", c("glm", "glmnet"), "glm", "binomial")
+# No hyperparameters
+fit <- mlr3superlearner(mtcars, "mpg", c("glm", "svm", "ranger"), "glm", "continuous")
+
+# With hyperparameters
+fit <- mlr3superlearner(mtcars, "mpg", 
+                        list("glm", "xgboost", "svm",
+                             list("nnet", trace = FALSE), 
+                             list("ranger", num.trees = 1000)), 
+                        "glm", "continuous")
+
 fit
-head(predict(fit, tmp))
+
+head(data.frame(pred = predict(fit, mtcars), truth = mtcars$mpg))
 ```
 
 ## Available learners

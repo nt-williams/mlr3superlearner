@@ -31,18 +31,32 @@ library(mlr3superlearner)
 #> Loading required package: mlr3learners
 #> Loading required package: mlr3
 
-n <- 1e3
-W <- matrix(rnorm(n*3), ncol = 3)
-A <- rbinom(n, 1, 1 / (1 + exp(-(.2*W[,1] - .1*W[,2] + .4*W[,3]))))
-Y <- rbinom(n, 1, plogis(A + 0.2*W[,1] + 0.1*W[,2] + 0.2*W[,3]^2))
-tmp <- data.frame(W, A, Y)
-fit <- mlr3superlearner(tmp, "Y", c("glm", "glmnet"), "glm", "binomial")
+# No hyperparameters
+fit <- mlr3superlearner(mtcars, "mpg", c("glm", "svm", "ranger"), "glm", "continuous")
+
+# With hyperparameters
+fit <- mlr3superlearner(mtcars, "mpg", 
+                        list("glm", "xgboost", "svm",
+                             list("nnet", trace = FALSE), 
+                             list("ranger", num.trees = 1000)), 
+                        "glm", "continuous")
+
 fit
-#>                        Risk
-#> classif.log_reg   0.2120545
-#> classif.cv_glmnet 0.2165303
-head(predict(fit, tmp))
-#> [1] 0.8027991 0.5724265 0.7911470 0.5481631 0.7012196 0.4837062
+#>                    Risk
+#> regr.lm       16.049056
+#> regr.nnet     35.562139
+#> regr.ranger    5.649881
+#> regr.svm      12.430873
+#> regr.xgboost 225.399161
+
+head(data.frame(pred = predict(fit, mtcars), truth = mtcars$mpg))
+#>       pred truth
+#> 1 20.58112  21.0
+#> 2 20.84844  21.0
+#> 3 22.46904  22.8
+#> 4 20.78397  21.4
+#> 5 17.87287  18.7
+#> 6 19.00376  18.1
 ```
 
 ## Available learners

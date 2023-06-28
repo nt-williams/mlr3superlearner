@@ -38,7 +38,7 @@ mlr3superlearner <- function(data, target, library, metalearner,
                              outcome_type = c("binomial", "continuous"),
                              folds = 10L, newdata = NULL, group = NULL, info = FALSE) {
   checkmate::assert_character(target, len = 1)
-  checkmate::assert_character(library)
+  #checkmate::assert_character(library)
   checkmate::assert_character(metalearner, len = 1)
   checkmate::assert_number(folds)
   checkmate::assert_list(newdata, types = "list", null.ok = TRUE)
@@ -94,10 +94,29 @@ make_mlr3_task <- function(data, target, outcome_type) {
 }
 
 make_base_learners <- function(library, outcome_type) {
-  has_necessary_packages(library, outcome_type)
-  args <- list(.keys = lookup(library, outcome_type))
+  if (is.list(library)) {
+    has_necessary_packages(purrr::map_chr(library, 1), outcome_type)
+    args <- list(.keys = lookup(purrr::map_chr(library, 1), outcome_type))
+  } else {
+    has_necessary_packages(library, outcome_type)
+    args <- list(.keys = lookup(library, outcome_type))
+  }
+
   if (outcome_type == "binomial") args$predict_type <- "prob"
-  do.call(mlr3::lrns, args)
+  stack <- do.call(mlr3::lrns, args)
+
+  if (is.list(library)) {
+    library <- library[order(purrr::map_chr(library, 1))]
+    for (i in 1:length(library)) {
+      if (!is.list(library[[i]])) {
+        next
+      }
+
+      stack[[i]]$param_set$values <- mlr3misc::insert_named(stack[[i]]$param_set$values,
+                                                            library[[i]][-1])
+    }
+  }
+  stack
 }
 
 compute_super_learner_weights <- function(learners, y, metalearner, outcome_type) {
