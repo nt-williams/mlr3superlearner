@@ -14,7 +14,7 @@ predict.mlr3superlearner <- function(object, newdata) {
 
   z <- lapply(object$learners, .f, newdata[, object$x, drop = F])
   z <- matrix(Reduce(`c`, z), ncol = length(object$learners))
-  colnames(z) <- names(object$learners)
+  colnames(z) <- purrr::map_chr(object$learners, "id")
 
   .f(object$metalearner, as.data.frame(z))
 }
