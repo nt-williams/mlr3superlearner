@@ -32,11 +32,11 @@ library(mlr3superlearner)
 #> Loading required package: mlr3
 
 # No hyperparameters
-fit <- mlr3superlearner(mtcars, "mpg", c("glm", "svm", "ranger"), "glm", "continuous")
+fit <- mlr3superlearner(mtcars, "mpg", c("mean", "glm", "svm", "ranger"), "glm", "continuous")
 
 # With hyperparameters
 fit <- mlr3superlearner(mtcars, "mpg", 
-                        list("glm", "xgboost", "svm",
+                        list("mean", "glm", "xgboost", "svm",
                              list("nnet", trace = FALSE),
                              list("ranger", num.trees = 500, id = "ranger1"),
                              list("ranger", num.trees = 1000, id = "ranger2")), 
@@ -44,21 +44,22 @@ fit <- mlr3superlearner(mtcars, "mpg",
 
 fit
 #>                                 Risk
-#> regr.glm                   12.937634
-#> regr.xgboost              230.750801
-#> regr.svm                   10.364918
-#> regr.nnet_and_trace_FALSE  36.747242
-#> regr.ranger1                5.414069
-#> regr.ranger2                5.960501
+#> regr.mean                  36.165166
+#> regr.glm                   11.862140
+#> regr.xgboost              226.908640
+#> regr.svm                   12.961142
+#> regr.nnet_and_trace_FALSE  37.648725
+#> regr.ranger1                5.811794
+#> regr.ranger2                5.657612
 
 head(data.frame(pred = predict(fit, mtcars), truth = mtcars$mpg))
 #>       pred truth
-#> 1 20.54408  21.0
-#> 2 20.65833  21.0
-#> 3 23.15205  22.8
-#> 4 20.26644  21.4
-#> 5 18.07915  18.7
-#> 6 18.89425  18.1
+#> 1 20.29545  21.0
+#> 2 20.36528  21.0
+#> 3 22.09540  22.8
+#> 4 20.22727  21.4
+#> 5 18.94028  18.7
+#> 6 18.62318  18.1
 ```
 
 ## Available learners
@@ -69,6 +70,7 @@ knitr::kable(available_learners("binomial"))
 
 | learner         | mlr3_learner         | mlr3_package      | learner_package |
 |:----------------|:---------------------|:------------------|:----------------|
+| mean            | classif.featureless  | mlr3              | stats           |
 | glm             | classif.log_reg      | mlr3learners      | stats           |
 | glmnet          | classif.cv_glmnet    | mlr3learners      | glmnet          |
 | knn             | classif.kknn         | mlr3learners      | kknn            |
@@ -94,6 +96,7 @@ knitr::kable(available_learners("continuous"))
 
 | learner         | mlr3_learner      | mlr3_package      | learner_package |
 |:----------------|:------------------|:------------------|:----------------|
+| mean            | regr.featureless  | mlr3              | stats           |
 | glm             | regr.lm           | mlr3learners      | stats           |
 | glmnet          | regr.cv_glmnet    | mlr3learners      | glmnet          |
 | knn             | regr.kknn         | mlr3learners      | kknn            |
