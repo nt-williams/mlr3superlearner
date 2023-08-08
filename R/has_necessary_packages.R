@@ -3,8 +3,10 @@ has_necessary_packages <- function(learners, outcome_type) {
   avail <- avail[avail$learner %in% learners, ]
 
   if ("mlr3extralearners" %in% avail$mlr3_package) {
-    if (!"mlr3extralearners" %in% (.packages())) {
-      stop("'mlr3extralearners' required. Load 'mlr3extralearners'!", call. = F)
+    if ("mlr3extralearners" %in% .packages(all.available = TRUE)) {
+      require("mlr3extralearners")
+    } else {
+      stop("'mlr3extralearners' required. Install 'mlr3extralearners'!", call. = F)
     }
   }
 

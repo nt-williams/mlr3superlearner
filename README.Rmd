@@ -41,7 +41,7 @@ fit <- mlr3superlearner(mtcars, "mpg", c("mean", "glm", "svm", "ranger"), "conti
 
 # With hyperparameters
 fit <- mlr3superlearner(mtcars, "mpg", 
-                        list("mean", "glm", "xgboost", "svm",
+                        list("mean", "glm", "xgboost", "svm", "earth",
                              list("nnet", trace = FALSE),
                              list("ranger", num.trees = 500, id = "ranger1"),
                              list("ranger", num.trees = 1000, id = "ranger2")), 

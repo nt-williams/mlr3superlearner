@@ -36,31 +36,33 @@ fit <- mlr3superlearner(mtcars, "mpg", c("mean", "glm", "svm", "ranger"), "conti
 
 # With hyperparameters
 fit <- mlr3superlearner(mtcars, "mpg", 
-                        list("mean", "glm", "xgboost", "svm",
+                        list("mean", "glm", "xgboost", "svm", "earth",
                              list("nnet", trace = FALSE),
                              list("ranger", num.trees = 500, id = "ranger1"),
                              list("ranger", num.trees = 1000, id = "ranger2")), 
                         "continuous", 
                         folds = 20)
+#> Loading required package: mlr3extralearners
 
 fit
 #>                                 Risk Coefficients
-#> regr.glm                   11.301492 0.0009978002
-#> regr.mean                  37.187809 0.0000000000
-#> regr.nnet_and_trace_FALSE  36.704355 0.0000000000
-#> regr.ranger1                5.963043 0.9988811284
-#> regr.ranger2                5.908796 0.0001210713
-#> regr.svm                   11.145473 0.0000000000
-#> regr.xgboost              223.288037 0.0000000000
+#> regr.earth                  8.173546            0
+#> regr.glm                   11.828231            0
+#> regr.mean                  37.507090            0
+#> regr.nnet_and_trace_FALSE  38.384537            0
+#> regr.ranger1                5.453984            1
+#> regr.ranger2                5.859746            0
+#> regr.svm                   10.620193            0
+#> regr.xgboost              226.389150            0
 
 head(data.frame(pred = predict(fit, mtcars), truth = mtcars$mpg))
 #>       pred truth
-#> 1 20.76750  21.0
-#> 2 20.72299  21.0
-#> 3 23.90067  22.8
-#> 4 20.14189  21.4
-#> 5 17.64479  18.7
-#> 6 18.85836  18.1
+#> 1 20.66675  21.0
+#> 2 20.67258  21.0
+#> 3 24.13711  22.8
+#> 4 20.14333  21.4
+#> 5 17.63573  18.7
+#> 6 18.95581  18.1
 ```
 
 ## Available learners

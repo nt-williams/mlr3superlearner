@@ -31,7 +31,7 @@
 #' A <- rbinom(n, 1, 1 / (1 + exp(-(.2*W[,1] - .1*W[,2] + .4*W[,3]))))
 #' Y <- rbinom(n,1, plogis(A + 0.2*W[,1] + 0.1*W[,2] + 0.2*W[,3]^2 ))
 #' tmp <- data.frame(W, A, Y)
-#' fit <- mlr3superlearner(tmp, "Y", c("glm", "glmnet"), "binomial")
+#' fit <- mlr3superlearner(tmp, "Y", c("glm", "glmnet", "ranger"), "binomial")
 #' predict(fit, tmp)
 mlr3superlearner <- function(data, target, library,
                              outcome_type = c("binomial", "continuous"),
@@ -63,9 +63,15 @@ mlr3superlearner <- function(data, target, library,
   )
 
   ensemble <- lapply(ensemble, function(algo) algo$train(task))
+
+  weights <- as.matrix(coef(meta$metalearner$model))
+  weights <- weights[rownames(weights) %in% unlist(lapply(ensemble, function(x) x$id)), 1]
+  weights <- weights / sum(weights)
+
   sl <- list(learners = ensemble,
              metalearner = meta$metalearner,
-             risk = meta$risk,
+             weights = weights[order(names(weights))],
+             risk = meta$risk[order(names(meta$risk))],
              outcome_type = outcome_type,
              folds = folds,
              x = setdiff(names(data), target))
