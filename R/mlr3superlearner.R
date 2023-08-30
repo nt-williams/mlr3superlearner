@@ -64,9 +64,16 @@ mlr3superlearner <- function(data, target, library,
 
   ensemble <- lapply(ensemble, function(algo) algo$train(task))
 
-  weights <- as.matrix(coef(meta$metalearner$model))
-  weights <- weights[rownames(weights) %in% unlist(lapply(ensemble, function(x) x$id)), 1]
-  weights <- weights / sum(weights)
+  weights <- coef(meta$metalearner$model)
+
+  if (is.null(weights)) {
+    weights <- 1
+    names(weights) <- unlist(lapply(ensemble, function(x) x$id))
+  } else {
+    weights <- as.matrix(coef(meta$metalearner$model))
+    weights <- weights[rownames(weights) %in% unlist(lapply(ensemble, function(x) x$id)), 1]
+    weights <- weights / sum(weights)
+  }
 
   sl <- list(learners = ensemble,
              metalearner = meta$metalearner,
@@ -132,7 +139,11 @@ compute_super_learner_weights <- function(learners, y, outcome_type) {
   names(cvRisk) <- ids
   colnames(x) <- ids
   task <- make_mlr3_task(data.frame(x, y), "y", "continuous")
-  args <- list("glmnet", lambda = 0, lower.limits = 0, intercept = FALSE)
+  if (ncol(x) == 1) {
+    args <- list("mean")
+  } else {
+    args <- list("glmnet", lambda = 0, lower.limits = 0, intercept = FALSE)
+  }
   metalearner <- make_base_learners(list(args), "continuous")[[1]]
   metalearner$train(task)
   list(risk = cvRisk, metalearner = metalearner)
