@@ -1,6 +1,6 @@
 #' Super Learner Algorithm
 #'
-#' Implementation of the Super Learner algorithm using the `mlr3` framework.
+#' Implementation of the Super Learner algorithm using the `mlr3` framework. The LASSO with an alpha value of 0 and a restriction on the lower limit of the coefficients is used as the meta-learner.
 #'
 #' @param data [\code{data.frame}]\cr
 #'  A \code{data.frame} containing predictors and target variable.
@@ -8,7 +8,6 @@
 #'  The name of the target variable in \code{data}.
 #' @param library [\code{character}]\cr
 #'  A vector of algorithms to be used for prediction.
-#' @param metalearner [\code{character(1)}]\cr
 #' @param outcome_type [\code{character(1)}]\cr
 #'  The outcome variable type.
 #' @param folds [\code{numeric(1)}]\cr
@@ -32,14 +31,14 @@
 #' A <- rbinom(n, 1, 1 / (1 + exp(-(.2*W[,1] - .1*W[,2] + .4*W[,3]))))
 #' Y <- rbinom(n,1, plogis(A + 0.2*W[,1] + 0.1*W[,2] + 0.2*W[,3]^2 ))
 #' tmp <- data.frame(W, A, Y)
-#' fit <- mlr3superlearner(tmp, "Y", c("glm", "glmnet"), "glm", "binomial")
+#' fit <- mlr3superlearner(tmp, "Y", c("glm", "glmnet", "ranger"), "binomial")
 #' predict(fit, tmp)
-mlr3superlearner <- function(data, target, library, metalearner,
+mlr3superlearner <- function(data, target, library,
                              outcome_type = c("binomial", "continuous"),
                              folds = 10L, newdata = NULL, group = NULL, info = FALSE) {
   checkmate::assert_character(target, len = 1)
   #checkmate::assert_character(library)
-  checkmate::assert_character(metalearner, len = 1)
+  # checkmate::assert_character(metalearner, len = 1)
   checkmate::assert_number(folds)
   checkmate::assert_list(newdata, types = "list", null.ok = TRUE)
 
@@ -60,14 +59,26 @@ mlr3superlearner <- function(data, target, library, metalearner,
   meta <- compute_super_learner_weights(
     lapply(ensemble, function(algo) mlr3::resample(task, algo, resampling)),
     y = data[[target]],
-    metalearner,
     outcome_type
   )
 
   ensemble <- lapply(ensemble, function(algo) algo$train(task))
+
+  weights <- coef(meta$metalearner$model)
+
+  if (is.null(weights)) {
+    weights <- 1
+    names(weights) <- unlist(lapply(ensemble, function(x) x$id))
+  } else {
+    weights <- as.matrix(coef(meta$metalearner$model))
+    weights <- weights[rownames(weights) %in% unlist(lapply(ensemble, function(x) x$id)), 1]
+    weights <- weights / sum(weights)
+  }
+
   sl <- list(learners = ensemble,
              metalearner = meta$metalearner,
-             risk = meta$risk,
+             weights = weights[order(names(weights))],
+             risk = meta$risk[order(names(meta$risk))],
              outcome_type = outcome_type,
              folds = folds,
              x = setdiff(names(data), target))
@@ -116,7 +127,7 @@ make_base_learners <- function(library, outcome_type) {
   stack
 }
 
-compute_super_learner_weights <- function(learners, y, metalearner, outcome_type) {
+compute_super_learner_weights <- function(learners, y, outcome_type) {
   x <- lapply(learners,
               function(x) {
                 preds <- data.table::as.data.table(x$prediction())
@@ -127,12 +138,13 @@ compute_super_learner_weights <- function(learners, y, metalearner, outcome_type
   cvRisk <- apply(x, 2, function(X) mean((X - y)^2))
   names(cvRisk) <- ids
   colnames(x) <- ids
-  tmp <- data.frame(x, y)
-  task <- make_mlr3_task(tmp, "y", outcome_type)
-  has_necessary_packages(metalearner, outcome_type)
-  args <- list(.key = lookup(metalearner, outcome_type))
-  if (outcome_type == "binomial") args$predict_type <- "prob"
-  metalearner <- do.call(mlr3::lrn, args)
+  task <- make_mlr3_task(data.frame(x, y), "y", "continuous")
+  if (ncol(x) == 1) {
+    args <- list("mean")
+  } else {
+    args <- list("glmnet", lambda = 0, lower.limits = 0, intercept = FALSE)
+  }
+  metalearner <- make_base_learners(list(args), "continuous")[[1]]
   metalearner$train(task)
   list(risk = cvRisk, metalearner = metalearner)
 }

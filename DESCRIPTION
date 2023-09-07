@@ -18,7 +18,8 @@ Imports:
     lgr,
     mlr3,
     data.table,
-    purrr
+    purrr,
+    glmnet
 Remotes: 
     mlr-org/mlr3extralearners
 RoxygenNote: 7.2.1

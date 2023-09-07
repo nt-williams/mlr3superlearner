@@ -19,18 +19,18 @@ available_learners <- function(outcome_type = c("binomial", "continuous")) {
 
 available_learners_classif <- function() {
   data.table::data.table(
-    learner = c("mean", "glm", "glmnet", "knn", "nnet", "lda", "naivebayes", "qda", "ranger", "svm", "xgboost", "earth", "lightgbm", "randomforest", "bart", "c50", "gam", "gaussianprocess", "glmboost"),
-    mlr3_learner = paste0("classif.", c("featureless", "log_reg", "cv_glmnet", "kknn", "nnet", "lda", "naive_bayes", "qda", "ranger", "svm", "xgboost", "earth", "lightgbm", "randomForest", "bart", "C50", "gam", "gausspr", "glmboost")),
-    mlr3_package = c("mlr3", rep("mlr3learners", 10), rep("mlr3extralearners", 8)),
-    learner_package = c("stats", "stats", "glmnet", "kknn", "nnet", "MASS", "e1071", "MASS", "ranger", "e1071", "xgboost", "earth", "lightgbm", "randomForest", "dbarts", "C50", "mgcv", "kernlab", "mboost")
+    learner = c("mean", "glm", "glmnet", "cv_glmnet", "knn", "nnet", "lda", "naivebayes", "qda", "ranger", "svm", "xgboost", "earth", "lightgbm", "randomforest", "bart", "c50", "gam", "gaussianprocess", "glmboost", "nloptr"),
+    mlr3_learner = paste0("classif.", c("featureless", "log_reg", "glmnet", "cv_glmnet", "kknn", "nnet", "lda", "naive_bayes", "qda", "ranger", "svm", "xgboost", "earth", "lightgbm", "randomForest", "bart", "C50", "gam", "gausspr", "glmboost", "avg")),
+    mlr3_package = c("mlr3", rep("mlr3learners", 11), rep("mlr3extralearners", 8), "mlr3pipelines"),
+    learner_package = c("stats", "stats", "glmnet", "glmnet", "kknn", "nnet", "MASS", "e1071", "MASS", "ranger", "e1071", "xgboost", "earth", "lightgbm", "randomForest", "dbarts", "C50", "mgcv", "kernlab", "mboost", "nloptr")
   )
 }
 
 available_learners_regr <- function() {
   data.table::data.table(
-    learner = c("mean", "glm", "glmnet", "knn", "nnet", "ranger", "svm", "xgboost", "earth", "lightgbm", "randomforest", "bart", "gam", "gaussianprocess", "glmboost"),
-    mlr3_learner = paste0("regr.", c("featureless", "lm", "cv_glmnet", "kknn", "nnet", "ranger", "svm", "xgboost", "earth", "lightgbm", "randomForest", "bart", "gam", "gausspr", "glmboost")),
-    mlr3_package = c("mlr3", rep("mlr3learners", 7), rep("mlr3extralearners", 7)),
-    learner_package = c("stats", "stats", "glmnet", "kknn", "nnet", "ranger", "e1071", "xgboost", "earth", "lightgbm", "randomForest", "dbarts", "mgcv", "kernlab", "mboost")
+    learner = c("mean", "glm", "glmnet", "cv_glmnet", "knn", "nnet", "ranger", "svm", "xgboost", "earth", "lightgbm", "randomforest", "bart", "gam", "gaussianprocess", "glmboost"),
+    mlr3_learner = paste0("regr.", c("featureless", "lm", "glmnet", "cv_glmnet", "kknn", "nnet", "ranger", "svm", "xgboost", "earth", "lightgbm", "randomForest", "bart", "gam", "gausspr", "glmboost")),
+    mlr3_package = c("mlr3", rep("mlr3learners", 8), rep("mlr3extralearners", 7)),
+    learner_package = c("stats", "stats", "glmnet", "glmnet", "kknn", "nnet", "ranger", "e1071", "xgboost", "earth", "lightgbm", "randomForest", "dbarts", "mgcv", "kernlab", "mboost")
   )
 }
