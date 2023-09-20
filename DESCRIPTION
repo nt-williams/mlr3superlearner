@@ -1,7 +1,7 @@
 Package: mlr3superlearner
 Type: Package
 Title: Super Learner Fitting and Prediction
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: 
     c(person(given = "Nicholas",
              family = "Williams",
@@ -19,10 +19,11 @@ Imports:
     mlr3,
     data.table,
     purrr,
-    glmnet
+    glmnet,
+    origami
 Remotes: 
     mlr-org/mlr3extralearners
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 Depends: 
     mlr3learners
 Suggests: 

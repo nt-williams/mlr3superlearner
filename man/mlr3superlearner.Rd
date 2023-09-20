@@ -9,7 +9,8 @@ mlr3superlearner(
   target,
   library,
   outcome_type = c("binomial", "continuous"),
-  folds = 10L,
+  folds = NULL,
+  discrete = TRUE,
   newdata = NULL,
   group = NULL,
   info = FALSE
@@ -29,7 +30,10 @@ A vector of algorithms to be used for prediction.}
 The outcome variable type.}
 
 \item{folds}{[\code{numeric(1)}]\cr
-The number of cross-validation folds.}
+The number of cross-validation folds, or if \code{NULL} will be dynamically determined.}
+
+\item{discrete}{[\code{logical(1)}]\cr
+Return the discrete Super Learner, or the ensemble Super Learner?}
 
 \item{newdata}{[\code{list}]\cr
 A \code{list} of \code{data.frames} to generate predictions from.}
@@ -46,7 +50,7 @@ Print learner fitting information to the console.}
 A list of class \code{mlr3superlearner}.
 }
 \description{
-Implementation of the Super Learner algorithm using the `mlr3` framework. The LASSO with an alpha value of 0 and a restriction on the lower limit of the coefficients is used as the meta-learner.
+Implementation of the Super Learner algorithm using the `mlr3` framework. By default, returning the discrete Super Learner. If using the ensemble Super Learner, The LASSO with an alpha value of 0 and a restriction on the lower limit of the coefficients is used as the meta-learner.
 }
 \examples{
 library(mlr3superlearner)
@@ -55,6 +59,6 @@ W <- matrix(rnorm(n*3), ncol = 3)
 A <- rbinom(n, 1, 1 / (1 + exp(-(.2*W[,1] - .1*W[,2] + .4*W[,3]))))
 Y <- rbinom(n,1, plogis(A + 0.2*W[,1] + 0.1*W[,2] + 0.2*W[,3]^2 ))
 tmp <- data.frame(W, A, Y)
-fit <- mlr3superlearner(tmp, "Y", c("glm", "glmnet", "ranger"), "binomial")
+fit <- mlr3superlearner(tmp, "Y", c("glm", "cv_glmnet", "ranger"), "binomial")
 predict(fit, tmp)
 }
