@@ -73,7 +73,7 @@ mlr3superlearner <- function(data, target, library,
   if (length(library) == 1 || discrete) {
     weights <- vector("numeric", length(library))
     names(weights) <- unlist(lapply(ensemble, function(x) x$id))
-    is_discrete <- names(which.min(meta$risk))
+    is_discrete <- which.min(meta$risk)
     weights[is_discrete] <- 1
     ensemble <- lapply(ensemble[is_discrete], function(algo) algo$train(task))
     meta$metalearner <- NULL

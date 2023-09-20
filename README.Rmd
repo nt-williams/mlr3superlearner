@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 [![R-CMD-check](https://github.com/nt-williams/mlr3superlearner/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/nt-williams/mlr3superlearner/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-An implementation of the [Super Learner](https://biostats.bepress.com/ucbbiostat/paper266/) prediction algorithm using the [mlr3](https://mlr3.mlr-org.com/) framework.
+An modern implementation of the [Super Learner](https://biostats.bepress.com/ucbbiostat/paper266/) prediction algorithm using the [mlr3](https://mlr3.mlr-org.com/) framework, and an adherence to the recommendations of [Phillips, van der Laan, Lee, and Gruber (2023)](https://doi.org/10.1093/ije/dyad023)
 
 ## Installation
 
@@ -45,8 +45,7 @@ fit <- mlr3superlearner(mtcars, "mpg",
                              list("nnet", trace = FALSE),
                              list("ranger", num.trees = 500, id = "ranger1"),
                              list("ranger", num.trees = 1000, id = "ranger2")), 
-                        "continuous", 
-                        folds = 20)
+                        "continuous")
 
 fit
 

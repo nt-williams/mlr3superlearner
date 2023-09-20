@@ -12,8 +12,7 @@ predict.mlr3superlearner <- function(object, newdata) {
                function(x, data) x$predict_newdata(data)$response,
                function(x, data) x$predict_newdata(data)$prob[, "1"])
   if (object$discrete) {
-    out <- .f(object$learners[[names(which(object$weights == 1))]],
-              newdata[, object$x, drop = F])
+    out <- .f(object$learners[[1]], newdata[, object$x, drop = F])
     return(out)
   }
   z <- lapply(object$learners, .f, newdata[, object$x, drop = F])

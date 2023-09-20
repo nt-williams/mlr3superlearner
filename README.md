@@ -10,9 +10,11 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 [![R-CMD-check](https://github.com/nt-williams/mlr3superlearner/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/nt-williams/mlr3superlearner/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-An implementation of the [Super
+An modern implementation of the [Super
 Learner](https://biostats.bepress.com/ucbbiostat/paper266/) prediction
-algorithm using the [mlr3](https://mlr3.mlr-org.com/) framework.
+algorithm using the [mlr3](https://mlr3.mlr-org.com/) framework, and an
+adherence to the recommendations of [Phillips, van der Laan, Lee, and
+Gruber (2023)](https://doi.org/10.1093/ije/dyad023)
 
 ## Installation
 
@@ -40,29 +42,28 @@ fit <- mlr3superlearner(mtcars, "mpg",
                              list("nnet", trace = FALSE),
                              list("ranger", num.trees = 500, id = "ranger1"),
                              list("ranger", num.trees = 1000, id = "ranger2")), 
-                        "continuous", 
-                        folds = 20)
+                        "continuous")
 #> Loading required package: mlr3extralearners
 
 fit
 #>                                 Risk Coefficients
-#> regr.earth                  8.173546            0
-#> regr.glm                   11.828231            0
-#> regr.mean                  37.507090            0
-#> regr.nnet_and_trace_FALSE  38.384537            0
-#> regr.ranger1                5.453984            1
-#> regr.ranger2                5.859746            0
-#> regr.svm                   10.620193            0
-#> regr.xgboost              226.389150            0
+#> regr.earth                  7.433474            0
+#> regr.glm                   10.637228            0
+#> regr.mean                  37.693178            0
+#> regr.nnet_and_trace_FALSE  39.318132            0
+#> regr.ranger1                5.745387            0
+#> regr.ranger2                5.260603            1
+#> regr.svm                   11.029092            0
+#> regr.xgboost              223.501980            0
 
 head(data.frame(pred = predict(fit, mtcars), truth = mtcars$mpg))
 #>       pred truth
-#> 1 20.66675  21.0
-#> 2 20.67258  21.0
-#> 3 24.13711  22.8
-#> 4 20.14333  21.4
-#> 5 17.63573  18.7
-#> 6 18.95581  18.1
+#> 1 20.75357  21.0
+#> 2 20.69057  21.0
+#> 3 24.10261  22.8
+#> 4 20.27380  21.4
+#> 5 17.68621  18.7
+#> 6 19.10903  18.1
 ```
 
 ## Available learners
