@@ -1,6 +1,6 @@
 #' Super Learner Algorithm
 #'
-#' Implementation of the Super Learner algorithm using the `mlr3` framework. The LASSO with an alpha value of 0 and a restriction on the lower limit of the coefficients is used as the meta-learner.
+#' Implementation of the Super Learner algorithm using the `mlr3` framework. By default, returning the discrete Super Learner. If using the ensemble Super Learner, The LASSO with an alpha value of 0 and a restriction on the lower limit of the coefficients is used as the meta-learner.
 #'
 #' @param data [\code{data.frame}]\cr
 #'  A \code{data.frame} containing predictors and target variable.
@@ -11,9 +11,9 @@
 #' @param outcome_type [\code{character(1)}]\cr
 #'  The outcome variable type.
 #' @param folds [\code{numeric(1)}]\cr
-#'  The number of cross-validation folds.
+#'  The number of cross-validation folds, or if \code{NULL} will be dynamically determined.
 #' @param discrete [\code{logical(1)}]\cr
-#'  Should the discrete Super Learner be returned?
+#'  Return the discrete Super Learner, or the ensemble Super Learner?
 #' @param newdata [\code{list}]\cr
 #'  A \code{list} of \code{data.frames} to generate predictions from.
 #' @param group [\code{character(1)}]\cr
@@ -56,12 +56,13 @@ mlr3superlearner <- function(data, target, library,
     folds <- set_folds(nrow(data), match.arg(outcome_type), data[[target]])
   }
 
-  resampling <- mlr3::rsmp("cv", folds = folds)
   task <- make_mlr3_task(data, target, outcome_type)
 
   if (!is.null(group)) {
     task$set_col_roles(group, "group")
   }
+
+  resampling <- make_mlr3_resampling(task, folds)
 
   meta <- compute_super_learner_weights(
     lapply(ensemble, function(algo) mlr3::resample(task, algo, resampling)),
@@ -69,14 +70,15 @@ mlr3superlearner <- function(data, target, library,
     outcome_type
   )
 
-  ensemble <- lapply(ensemble, function(algo) algo$train(task))
-
-  weights <- coef(meta$metalearner$model)
-
-  if (is.null(weights)) {
-    weights <- 1
+  if (length(library) == 1 || discrete) {
+    weights <- vector("numeric", length(library))
     names(weights) <- unlist(lapply(ensemble, function(x) x$id))
+    is_discrete <- names(which.min(meta$risk))
+    weights[is_discrete] <- 1
+    ensemble <- lapply(ensemble[is_discrete], function(algo) algo$train(task))
+    meta$metalearner <- NULL
   } else {
+    ensemble <- lapply(ensemble, function(algo) algo$train(task))
     weights <- as.matrix(coef(meta$metalearner$model))
     weights <- weights[rownames(weights) %in% unlist(lapply(ensemble, function(x) x$id)), 1]
     weights <- weights / sum(weights)
@@ -88,7 +90,8 @@ mlr3superlearner <- function(data, target, library,
              risk = meta$risk[order(names(meta$risk))],
              outcome_type = outcome_type,
              folds = folds,
-             x = setdiff(names(data), target))
+             x = setdiff(names(data), target),
+             discrete = discrete)
 
   class(sl) <- "mlr3superlearner"
 
