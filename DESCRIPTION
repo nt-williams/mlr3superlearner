@@ -19,10 +19,11 @@ Imports:
     mlr3,
     data.table,
     purrr,
-    glmnet
+    glmnet,
+    origami
 Remotes: 
     mlr-org/mlr3extralearners
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 Depends: 
     mlr3learners
 Suggests: 
