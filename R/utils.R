@@ -7,3 +7,18 @@ make_learner_id <- function(x, outcome_type) {
   }
   paste0(predicate, ".", x[[1]])
 }
+
+set_folds <- function(n, outcome_type, target) {
+  if (outcome_type == "binomial") {
+    nrare <- n*min(mean(target), 1 - mean(target))
+    neff <- min(n, 5*nrare)
+  } else {
+    neff <- n
+  }
+
+  if (neff < 30) return(neff)
+  if (neff < 500) return(20)
+  if (neff < 5000) return(10)
+  if (neff < 1e4) return(5)
+  2
+}

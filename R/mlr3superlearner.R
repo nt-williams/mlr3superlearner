@@ -12,6 +12,8 @@
 #'  The outcome variable type.
 #' @param folds [\code{numeric(1)}]\cr
 #'  The number of cross-validation folds.
+#' @param discrete [\code{logical(1)}]\cr
+#'  Should the discrete Super Learner be returned?
 #' @param newdata [\code{list}]\cr
 #'  A \code{list} of \code{data.frames} to generate predictions from.
 #' @param group [\code{character(1)}]\cr
@@ -31,15 +33,16 @@
 #' A <- rbinom(n, 1, 1 / (1 + exp(-(.2*W[,1] - .1*W[,2] + .4*W[,3]))))
 #' Y <- rbinom(n,1, plogis(A + 0.2*W[,1] + 0.1*W[,2] + 0.2*W[,3]^2 ))
 #' tmp <- data.frame(W, A, Y)
-#' fit <- mlr3superlearner(tmp, "Y", c("glm", "glmnet", "ranger"), "binomial")
+#' fit <- mlr3superlearner(tmp, "Y", c("glm", "cv_glmnet", "ranger"), "binomial")
 #' predict(fit, tmp)
 mlr3superlearner <- function(data, target, library,
                              outcome_type = c("binomial", "continuous"),
-                             folds = 10L, newdata = NULL, group = NULL, info = FALSE) {
+                             folds = NULL, discrete = TRUE,
+                             newdata = NULL, group = NULL, info = FALSE) {
   checkmate::assert_character(target, len = 1)
-  #checkmate::assert_character(library)
-  # checkmate::assert_character(metalearner, len = 1)
-  checkmate::assert_number(folds)
+  # checkmate::assert_character(library)
+  checkmate::assert_number(folds, null.ok = TRUE)
+  checkmate::assert_logical(discrete, len = 1)
   checkmate::assert_list(newdata, types = "list", null.ok = TRUE)
 
   ensemble <- make_base_learners(library, outcome_type)
@@ -47,6 +50,10 @@ mlr3superlearner <- function(data, target, library,
   if (info) {
     lgr::get_logger("mlr3")$set_threshold("info")
     on.exit(lgr::get_logger("mlr3")$set_threshold("warn"))
+  }
+
+  if (is.null(folds)) {
+    folds <- set_folds(nrow(data), match.arg(outcome_type), data[[target]])
   }
 
   resampling <- mlr3::rsmp("cv", folds = folds)
