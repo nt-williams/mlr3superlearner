@@ -47,23 +47,23 @@ fit <- mlr3superlearner(mtcars, "mpg",
 
 fit
 #>                                 Risk Coefficients
-#> regr.earth                  7.433474            0
-#> regr.glm                   10.637228            0
-#> regr.mean                  37.693178            0
-#> regr.nnet_and_trace_FALSE  39.318132            0
-#> regr.ranger1                5.745387            0
-#> regr.ranger2                5.260603            1
-#> regr.svm                   11.029092            0
-#> regr.xgboost              223.501980            0
+#> regr.earth                  8.056327            0
+#> regr.glm                   12.852448            0
+#> regr.mean                  36.801719            0
+#> regr.nnet_and_trace_FALSE  33.777870            0
+#> regr.ranger1                5.976213            0
+#> regr.ranger2                5.363008            1
+#> regr.svm                   11.383258            0
+#> regr.xgboost              227.893870            0
 
 head(data.frame(pred = predict(fit, mtcars), truth = mtcars$mpg))
 #>       pred truth
-#> 1 20.75357  21.0
-#> 2 20.69057  21.0
-#> 3 24.10261  22.8
-#> 4 20.27380  21.4
-#> 5 17.68621  18.7
-#> 6 19.10903  18.1
+#> 1 20.77089  21.0
+#> 2 20.76884  21.0
+#> 3 23.94670  22.8
+#> 4 20.28856  21.4
+#> 5 17.61436  18.7
+#> 6 18.95540  18.1
 ```
 
 ## Available learners

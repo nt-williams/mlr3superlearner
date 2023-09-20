@@ -4,12 +4,12 @@ make_mlr3_resampling <- function(task, folds) {
     return(out)
   }
 
-  ofolds <- origami::make_folds(task$nrow,
-                                cluster_ids = task$groups,
-                                strata_ids = task$data(cols = task$target_names)[, 1])
-  out <- rsmp("custom")
-  out$instantiate(task,
-                  lapply(ofolds, function(x) x$training_set),
-                  lapply(ofolds, function(x) x$validation_set))
-  out
+  if (length(task$col_roles$group) != 0) {
+    warning("Cannot perform stratified CV with `group`. Performing blocked CV.", call. = FALSE)
+    out <- mlr3::rsmp("cv", folds = folds)
+    return(out)
+  }
+
+  task$col_roles$stratum <- task$col_roles$target
+  mlr3::rsmp("cv", folds = folds)
 }
