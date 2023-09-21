@@ -24,17 +24,21 @@
 #'  Print learner fitting information to the console.
 #'
 #' @return A list of class \code{mlr3superlearner}.
+#'
+#' @import mlr3learners
+#' @importFrom stats coef
+#'
 #' @export
 #'
 #' @examples
-#' library(mlr3superlearner)
-#' n <- 1e3
-#' W <- matrix(rnorm(n*3), ncol = 3)
-#' A <- rbinom(n, 1, 1 / (1 + exp(-(.2*W[,1] - .1*W[,2] + .4*W[,3]))))
-#' Y <- rbinom(n,1, plogis(A + 0.2*W[,1] + 0.1*W[,2] + 0.2*W[,3]^2 ))
-#' tmp <- data.frame(W, A, Y)
-#' fit <- mlr3superlearner(tmp, "Y", c("glm", "cv_glmnet", "ranger"), "binomial")
-#' predict(fit, tmp)
+#' if (requireNamespace("ranger", quietly = TRUE)) {
+#'   n <- 1e3
+#'   W <- matrix(rnorm(n*3), ncol = 3)
+#'   A <- rbinom(n, 1, 1 / (1 + exp(-(.2*W[,1] - .1*W[,2] + .4*W[,3]))))
+#'   Y <- rbinom(n,1, plogis(A + 0.2*W[,1] + 0.1*W[,2] + 0.2*W[,3]^2 ))
+#'   tmp <- data.frame(W, A, Y)
+#'   mlr3superlearner(tmp, "Y", c("glm", "ranger"), "binomial")
+#' }
 mlr3superlearner <- function(data, target, library,
                              outcome_type = c("binomial", "continuous"),
                              folds = NULL, discrete = TRUE,
@@ -102,59 +106,4 @@ mlr3superlearner <- function(data, target, library,
 
   sl$preds <- lapply(newdata, function(x) predict.mlr3superlearner(sl, x))
   sl
-}
-
-make_mlr3_task <- function(data, target, outcome_type) {
-  args <- list(x = data,
-               target = target,
-               id = "mlr3superlearner_training_task")
-
-  switch(outcome_type,
-         binomial = do.call(as_task_classif, args),
-         continuous = do.call(as_task_regr, args))
-}
-
-make_base_learners <- function(library, outcome_type) {
-  if (is.list(library)) {
-    has_necessary_packages(purrr::map_chr(library, 1), outcome_type)
-
-    stack <- lapply(library, function(info) {
-      args <- as.list(info)[-1]
-      args$.key <- lookup(info[[1]], outcome_type)
-      args$id <- make_learner_id(info, outcome_type)
-      if (outcome_type == "binomial") args$predict_type <- "prob"
-
-      do.call(mlr3::lrn, args)
-    })
-  } else {
-    has_necessary_packages(library, outcome_type)
-
-    args <- list(.keys = lookup(library, outcome_type))
-    if (outcome_type == "binomial") args$predict_type <- "prob"
-    stack <- do.call(mlr3::lrns, args)
-  }
-
-  stack
-}
-
-compute_super_learner_weights <- function(learners, y, outcome_type) {
-  x <- lapply(learners,
-              function(x) {
-                preds <- data.table::as.data.table(x$prediction())
-                preds[order(preds$row_ids), ][[ifelse(outcome_type == "continuous", "response", "prob.1")]]
-              })
-  x <- matrix(Reduce(`c`, x), ncol = length(learners))
-  ids <- unlist(lapply(learners, function(x) x$learner$id))
-  cvRisk <- apply(x, 2, function(X) mean((X - y)^2))
-  names(cvRisk) <- ids
-  colnames(x) <- ids
-  task <- make_mlr3_task(data.frame(x, y), "y", "continuous")
-  if (ncol(x) == 1) {
-    args <- list("mean")
-  } else {
-    args <- list("glmnet", lambda = 0, lower.limits = 0, intercept = FALSE)
-  }
-  metalearner <- make_base_learners(list(args), "continuous")[[1]]
-  metalearner$train(task)
-  list(risk = cvRisk, metalearner = metalearner)
 }

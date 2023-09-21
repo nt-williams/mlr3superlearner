@@ -32,9 +32,11 @@ devtools::install_github("nt-williams/mlr3superlearner")
 library(mlr3superlearner)
 #> Loading required package: mlr3learners
 #> Loading required package: mlr3
+library(mlr3extralearners)
 
 # No hyperparameters
 fit <- mlr3superlearner(mtcars, "mpg", c("mean", "glm", "svm", "ranger"), "continuous")
+#> ℹ Setting cross-validation folds as 20
 
 # With hyperparameters
 fit <- mlr3superlearner(mtcars, "mpg", 
@@ -43,27 +45,28 @@ fit <- mlr3superlearner(mtcars, "mpg",
                              list("ranger", num.trees = 500, id = "ranger1"),
                              list("ranger", num.trees = 1000, id = "ranger2")), 
                         "continuous")
-#> Loading required package: mlr3extralearners
+#> ℹ Setting cross-validation folds as 20
 
 fit
+#> ══ `mlr3superlearner()` ════════════════════════════════════════════════════════
 #>                                 Risk Coefficients
-#> regr.earth                  8.056327            0
-#> regr.glm                   12.852448            0
-#> regr.mean                  36.801719            0
-#> regr.nnet_and_trace_FALSE  33.777870            0
-#> regr.ranger1                5.976213            0
-#> regr.ranger2                5.363008            1
-#> regr.svm                   11.383258            0
-#> regr.xgboost              227.893870            0
+#> regr.earth                 10.578953            0
+#> regr.glm                   11.543067            0
+#> regr.mean                  38.831338            0
+#> regr.nnet_and_trace_FALSE  37.493411            0
+#> regr.ranger1                5.725750            0
+#> regr.ranger2                5.641004            1
+#> regr.svm                   11.535177            0
+#> regr.xgboost              226.947489            0
 
 head(data.frame(pred = predict(fit, mtcars), truth = mtcars$mpg))
 #>       pred truth
-#> 1 20.77089  21.0
-#> 2 20.76884  21.0
-#> 3 23.94670  22.8
-#> 4 20.28856  21.4
-#> 5 17.61436  18.7
-#> 6 18.95540  18.1
+#> 1 20.78731  21.0
+#> 2 20.75069  21.0
+#> 3 24.09735  22.8
+#> 4 20.29066  21.4
+#> 5 17.64259  18.7
+#> 6 19.01303  18.1
 ```
 
 ## Available learners

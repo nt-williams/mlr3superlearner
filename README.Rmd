@@ -35,6 +35,7 @@ devtools::install_github("nt-williams/mlr3superlearner")
 
 ```{r example}
 library(mlr3superlearner)
+library(mlr3extralearners)
 
 # No hyperparameters
 fit <- mlr3superlearner(mtcars, "mpg", c("mean", "glm", "svm", "ranger"), "continuous")

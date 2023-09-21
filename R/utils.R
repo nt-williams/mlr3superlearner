@@ -16,9 +16,12 @@ set_folds <- function(n, outcome_type, target) {
     neff <- n
   }
 
-  if (neff < 30) return(neff)
-  if (neff < 500) return(20)
-  if (neff < 5000) return(10)
-  if (neff < 1e4) return(5)
-  2
+  if (neff < 30) folds <- neff
+  if (neff >= 30) folds <- 20
+  if (neff >= 500) folds <- 10
+  if (neff >= 5000) folds <- 5
+  if (neff >= 1e4) folds <- 2
+
+  cli::cli_alert_info("Setting cross-validation folds as {folds}")
+  folds
 }
