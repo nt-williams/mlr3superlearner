@@ -12,7 +12,8 @@ has_necessary_packages <- function(learners, outcome_type) {
     }
   }
 
-  unavailable <- avail$learner_package[!(avail$learner_package %in% .packages(TRUE))]
+  has_pkg <- sapply(avail$learner_package, function(x) (requireNamespace(x, quietly = TRUE)))
+  unavailable <- avail$learner_package[!has_pkg]
   if (length(unavailable) != 0) {
     cli::cli_abort("Packages {.pkg {unavailable}} required. Install with {.code install.packages()}.")
   }

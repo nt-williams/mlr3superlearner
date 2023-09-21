@@ -12,7 +12,7 @@
 #' @seealso \code{\link{mlr3superlearner}}
 #'
 #' @examples
-#' if (require("ranger")) {
+#' if (requireNamespace("ranger", quietly = TRUE)) {
 #'   n <- 1e3
 #'   W <- matrix(rnorm(n*3), ncol = 3)
 #'   A <- rbinom(n, 1, 1 / (1 + exp(-(.2*W[,1] - .1*W[,2] + .4*W[,3]))))
