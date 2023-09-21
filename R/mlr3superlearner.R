@@ -32,13 +32,16 @@
 #'
 #' @examples
 #' library(mlr3superlearner)
-#' n <- 1e3
-#' W <- matrix(rnorm(n*3), ncol = 3)
-#' A <- rbinom(n, 1, 1 / (1 + exp(-(.2*W[,1] - .1*W[,2] + .4*W[,3]))))
-#' Y <- rbinom(n,1, plogis(A + 0.2*W[,1] + 0.1*W[,2] + 0.2*W[,3]^2 ))
-#' tmp <- data.frame(W, A, Y)
-#' fit <- mlr3superlearner(tmp, "Y", c("glm", "cv_glmnet", "ranger"), "binomial")
-#' predict(fit, tmp)
+#'
+#' if (require("ranger")) {
+#'   n <- 1e3
+#'   W <- matrix(rnorm(n*3), ncol = 3)
+#'   A <- rbinom(n, 1, 1 / (1 + exp(-(.2*W[,1] - .1*W[,2] + .4*W[,3]))))
+#'   Y <- rbinom(n,1, plogis(A + 0.2*W[,1] + 0.1*W[,2] + 0.2*W[,3]^2 ))
+#'   tmp <- data.frame(W, A, Y)
+#'   fit <- mlr3superlearner(tmp, "Y", c("glm", "ranger"), "binomial")
+#'   predict(fit, tmp)
+#' }
 mlr3superlearner <- function(data, target, library,
                              outcome_type = c("binomial", "continuous"),
                              folds = NULL, discrete = TRUE,
