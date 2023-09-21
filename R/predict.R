@@ -1,13 +1,26 @@
 #' Predict method for \code{mlr3superlearner} object
 #'
-#' @param object An object returned from \code{mlr3superlearner()}.
-#' @param newdata A \code{data.frame} to return predictions from.
+#' @param object [\code{mlr3superlearner}]\cr
+#'  An object returned from \code{mlr3superlearner()}.
+#' @param newdata data [\code{data.frame}]\cr
+#'  A \code{data.frame} containing predictors.
 #' @param ... Unused.
 #'
-#' @return Predicted values.
+#' @return A vector of the predicted values.
 #' @exportS3Method
 #'
 #' @seealso \code{\link{mlr3superlearner}}
+#'
+#' @examples
+#' if (require("ranger")) {
+#'   n <- 1e3
+#'   W <- matrix(rnorm(n*3), ncol = 3)
+#'   A <- rbinom(n, 1, 1 / (1 + exp(-(.2*W[,1] - .1*W[,2] + .4*W[,3]))))
+#'   Y <- rbinom(n,1, plogis(A + 0.2*W[,1] + 0.1*W[,2] + 0.2*W[,3]^2 ))
+#'   tmp <- data.frame(W, A, Y)
+#'   fit <- mlr3superlearner(tmp, "Y", c("glm", "ranger"), "binomial")
+#'   predict(fit, tmp)
+#' }
 predict.mlr3superlearner <- function(object, newdata, ...) {
   .f <- ifelse(object$outcome_type == "continuous",
                function(x, data) x$predict_newdata(data)$response,
