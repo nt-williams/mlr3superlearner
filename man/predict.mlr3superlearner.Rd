@@ -4,12 +4,14 @@
 \alias{predict.mlr3superlearner}
 \title{Predict method for \code{mlr3superlearner} object}
 \usage{
-\method{predict}{mlr3superlearner}(object, newdata)
+\method{predict}{mlr3superlearner}(object, newdata, ...)
 }
 \arguments{
 \item{object}{An object returned from \code{mlr3superlearner()}.}
 
 \item{newdata}{A \code{data.frame} to return predictions from.}
+
+\item{...}{Unused.}
 }
 \value{
 Predicted values.

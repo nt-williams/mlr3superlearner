@@ -24,6 +24,10 @@
 #'  Print learner fitting information to the console.
 #'
 #' @return A list of class \code{mlr3superlearner}.
+#'
+#' @import mlr3learners
+#' @importFrom stats coef
+#'
 #' @export
 #'
 #' @examples
@@ -104,6 +108,8 @@ mlr3superlearner <- function(data, target, library,
   sl
 }
 
+#' @importFrom mlr3 as_task_classif
+#' @importFrom mlr3 as_task_regr
 make_mlr3_task <- function(data, target, outcome_type) {
   args <- list(x = data,
                target = target,
