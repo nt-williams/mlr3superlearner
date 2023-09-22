@@ -57,7 +57,9 @@ mlr3superlearner <- function(data, target, library,
   }
 
   if (is.null(folds)) {
-    folds <- set_folds(nrow(data), match.arg(outcome_type), data[[target]])
+    folds <- set_folds({if (is.null(group)) nrow(data)
+                          else length(unique(data[[group]]))},
+                       match.arg(outcome_type), data[[target]])
   }
 
   task <- make_mlr3_task(data, target, outcome_type)
