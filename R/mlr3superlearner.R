@@ -8,6 +8,7 @@
 #'  The name of the target variable in \code{data}.
 #' @param library [\code{character}]\cr
 #'  A vector of algorithms to be used for prediction.
+#' @param filters [\code{PipeOpsFilter}]
 #' @param outcome_type [\code{character(1)}]\cr
 #'  The outcome variable type.
 #' @param folds [\code{numeric(1)}]\cr
@@ -31,25 +32,37 @@
 #' @export
 #'
 #' @examples
+#' n <- 1e3
+#' W <- matrix(rnorm(n*3), ncol = 3)
+#' A <- rbinom(n, 1, 1 / (1 + exp(-(.2*W[,1] - .1*W[,2] + .4*W[,3]))))
+#' Y <- rbinom(n,1, plogis(A + 0.2*W[,1] + 0.1*W[,2] + 0.2*W[,3]^2 ))
+#' tmp <- data.frame(W, A, Y)
+#'
 #' if (requireNamespace("ranger", quietly = TRUE)) {
-#'   n <- 1e3
-#'   W <- matrix(rnorm(n*3), ncol = 3)
-#'   A <- rbinom(n, 1, 1 / (1 + exp(-(.2*W[,1] - .1*W[,2] + .4*W[,3]))))
-#'   Y <- rbinom(n,1, plogis(A + 0.2*W[,1] + 0.1*W[,2] + 0.2*W[,3]^2 ))
-#'   tmp <- data.frame(W, A, Y)
-#'   mlr3superlearner(tmp, "Y", c("glm", "ranger"), "binomial")
+#'   mlr3superlearner(tmp, "Y", c("glm", "ranger"), outcome_type = "binomial")
 #' }
-mlr3superlearner <- function(data, target, library,
+#'
+#' if (requireNamespace("glmnet", quietly = TRUE) &
+#'     requireNamespace("mlr3filters", quietly = TRUE)) {
+#'     filter <- mlr3pipelines::po("filter",
+#'                                 filter = mlr3filters::flt(
+#'                                   "selected_features",
+#'                                   learner = lrn("classif.cv_glmnet")
+#'                                 ), filter.nfeat = 3)
+#'     mlr3superlearner(tmp, "Y", c("glm", "ranger"), filter, "binomial")
+#' }
+mlr3superlearner <- function(data, target, library, filters = NULL,
                              outcome_type = c("binomial", "continuous"),
                              folds = NULL, discrete = TRUE,
                              newdata = NULL, group = NULL, info = FALSE) {
   checkmate::assert_character(target, len = 1)
-  # checkmate::assert_character(library)
+  checkmate::assert_class(filters, "PipeOpFilter", null.ok = TRUE)
+  # assert_library(library)
   checkmate::assert_number(folds, null.ok = TRUE)
   checkmate::assert_logical(discrete, len = 1)
   checkmate::assert_list(newdata, types = "list", null.ok = TRUE)
 
-  ensemble <- make_base_learners(library, outcome_type)
+  ensemble <- make_base_learners(library, filters, outcome_type)
 
   if (info) {
     lgr::get_logger("mlr3")$set_threshold("info")

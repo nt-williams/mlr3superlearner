@@ -15,7 +15,7 @@ compute_super_learner_weights <- function(learners, y, outcome_type, group) {
   } else {
     args <- list("glmnet", lambda = 0, lower.limits = 0, intercept = FALSE)
   }
-  metalearner <- make_base_learners(list(args), "continuous")[[1]]
+  metalearner <- make_base_learners(list(args), NULL, "continuous")[[1]]
   metalearner$train(task)
   list(risk = cvRisk, metalearner = metalearner)
 }

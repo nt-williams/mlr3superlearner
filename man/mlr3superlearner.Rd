@@ -8,6 +8,7 @@ mlr3superlearner(
   data,
   target,
   library,
+  filters = NULL,
   outcome_type = c("binomial", "continuous"),
   folds = NULL,
   discrete = TRUE,
@@ -25,6 +26,8 @@ The name of the target variable in \code{data}.}
 
 \item{library}{[\code{character}]\cr
 A vector of algorithms to be used for prediction.}
+
+\item{filters}{[\code{PipeOpsFilter}]}
 
 \item{outcome_type}{[\code{character(1)}]\cr
 The outcome variable type.}
@@ -53,12 +56,23 @@ A list of class \code{mlr3superlearner}.
 Implementation of the Super Learner algorithm using the `mlr3` framework. By default, returning the discrete Super Learner. If using the ensemble Super Learner, The LASSO with an alpha value of 0 and a restriction on the lower limit of the coefficients is used as the meta-learner.
 }
 \examples{
+n <- 1e3
+W <- matrix(rnorm(n*3), ncol = 3)
+A <- rbinom(n, 1, 1 / (1 + exp(-(.2*W[,1] - .1*W[,2] + .4*W[,3]))))
+Y <- rbinom(n,1, plogis(A + 0.2*W[,1] + 0.1*W[,2] + 0.2*W[,3]^2 ))
+tmp <- data.frame(W, A, Y)
+
 if (requireNamespace("ranger", quietly = TRUE)) {
-  n <- 1e3
-  W <- matrix(rnorm(n*3), ncol = 3)
-  A <- rbinom(n, 1, 1 / (1 + exp(-(.2*W[,1] - .1*W[,2] + .4*W[,3]))))
-  Y <- rbinom(n,1, plogis(A + 0.2*W[,1] + 0.1*W[,2] + 0.2*W[,3]^2 ))
-  tmp <- data.frame(W, A, Y)
-  mlr3superlearner(tmp, "Y", c("glm", "ranger"), "binomial")
+  mlr3superlearner(tmp, "Y", c("glm", "ranger"), outcome_type = "binomial")
+}
+
+if (requireNamespace("glmnet", quietly = TRUE) &
+    requireNamespace("mlr3filters", quietly = TRUE)) {
+    filter <- mlr3pipelines::po("filter",
+                                filter = mlr3filters::flt(
+                                  "selected_features",
+                                  learner = lrn("classif.cv_glmnet")
+                                ), filter.nfeat = 3)
+    mlr3superlearner(tmp, "Y", c("glm", "ranger"), filter, "binomial")
 }
 }
