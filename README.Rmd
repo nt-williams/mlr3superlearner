@@ -31,14 +31,15 @@ You can install the development version of mlr3superlearner from [GitHub](https:
 devtools::install_github("nt-williams/mlr3superlearner")
 ``` 
 
-## Example
+## Examples
 
 ```{r example}
 library(mlr3superlearner)
 library(mlr3extralearners)
 
 # No hyperparameters
-mlr3superlearner(mtcars, "mpg", c("mean", "glm", "svm", "ranger"), "continuous")
+mlr3superlearner(mtcars, "mpg", c("mean", "glm", "svm", "ranger"), 
+                 outcome_type = "continuous")
 
 # With hyperparameters
 fit <- mlr3superlearner(mtcars, "mpg", 
@@ -46,12 +47,32 @@ fit <- mlr3superlearner(mtcars, "mpg",
                              list("nnet", trace = FALSE),
                              list("ranger", num.trees = 500, id = "ranger1"),
                              list("ranger", num.trees = 1000, id = "ranger2")), 
-                        "continuous")
+                        outcome_type = "continuous")
 
 fit
 
 head(data.frame(pred = predict(fit, mtcars), truth = mtcars$mpg))
 ```
+
+### Feature selection
+
+```{r}
+library(mlr3pipelines)
+library(mlr3filters)
+
+filter <- po("filter",
+             filter = flt("selected_features", learner = lrn("regr.cv_glmnet")),
+             filter.cutoff = 1)
+
+mlr3superlearner(mtcars, "mpg", 
+                 list("mean", "glm", "xgboost", "svm", "earth",
+                      list("nnet", trace = FALSE),
+                      list("ranger", num.trees = 500, id = "ranger1"),
+                      list("ranger", num.trees = 1000, id = "ranger2")), 
+                 filter,
+                 "continuous")
+```
+
 
 ## Available learners
 

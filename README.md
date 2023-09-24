@@ -26,7 +26,7 @@ You can install the development version of mlr3superlearner from
 devtools::install_github("nt-williams/mlr3superlearner")
 ```
 
-## Example
+## Examples
 
 ``` r
 library(mlr3superlearner)
@@ -35,14 +35,15 @@ library(mlr3superlearner)
 library(mlr3extralearners)
 
 # No hyperparameters
-mlr3superlearner(mtcars, "mpg", c("mean", "glm", "svm", "ranger"), "continuous")
+mlr3superlearner(mtcars, "mpg", c("mean", "glm", "svm", "ranger"), 
+                 outcome_type = "continuous")
 #> ℹ n effective = 32. Setting cross-validation folds as 20
 #> ══ `mlr3superlearner()` ════════════════════════════════════════════════════════
-#>                      Risk Coefficients
-#> regr.featureless 37.82487            0
-#> regr.lm          12.21920            0
-#> regr.ranger       5.70615            1
-#> regr.svm         11.38053            0
+#>                       Risk Coefficients
+#> regr.featureless 38.557677            0
+#> regr.lm          11.330770            0
+#> regr.ranger       5.832983            1
+#> regr.svm         11.569147            0
 
 # With hyperparameters
 fit <- mlr3superlearner(mtcars, "mpg", 
@@ -50,29 +51,59 @@ fit <- mlr3superlearner(mtcars, "mpg",
                              list("nnet", trace = FALSE),
                              list("ranger", num.trees = 500, id = "ranger1"),
                              list("ranger", num.trees = 1000, id = "ranger2")), 
-                        "continuous")
+                        outcome_type = "continuous")
 #> ℹ n effective = 32. Setting cross-validation folds as 20
 
 fit
 #> ══ `mlr3superlearner()` ════════════════════════════════════════════════════════
 #>                                 Risk Coefficients
-#> regr.earth                  7.781849            0
-#> regr.glm                   12.166336            0
-#> regr.mean                  37.891555            0
-#> regr.nnet_and_trace_FALSE  36.086681            0
-#> regr.ranger1                5.953228            0
-#> regr.ranger2                5.724181            1
-#> regr.svm                   11.223307            0
-#> regr.xgboost              225.854354            0
+#> regr.earth                  7.629182            0
+#> regr.glm                   13.079911            0
+#> regr.mean                  37.852138            0
+#> regr.nnet_and_trace_FALSE  39.801624            0
+#> regr.ranger1                5.626605            0
+#> regr.ranger2                5.598592            1
+#> regr.svm                   11.298687            0
+#> regr.xgboost              227.304285            0
 
 head(data.frame(pred = predict(fit, mtcars), truth = mtcars$mpg))
 #>       pred truth
-#> 1 20.74050  21.0
-#> 2 20.70535  21.0
-#> 3 24.25158  22.8
-#> 4 20.21326  21.4
-#> 5 17.67443  18.7
-#> 6 18.98955  18.1
+#> 1 20.76438  21.0
+#> 2 20.76492  21.0
+#> 3 24.20269  22.8
+#> 4 20.14358  21.4
+#> 5 17.63430  18.7
+#> 6 18.87703  18.1
+```
+
+### Feature selection
+
+``` r
+library(mlr3pipelines)
+library(mlr3filters)
+
+filter <- po("filter",
+             filter = flt("selected_features", learner = lrn("regr.cv_glmnet")),
+             filter.cutoff = 1)
+
+mlr3superlearner(mtcars, "mpg", 
+                 list("mean", "glm", "xgboost", "svm", "earth",
+                      list("nnet", trace = FALSE),
+                      list("ranger", num.trees = 500, id = "ranger1"),
+                      list("ranger", num.trees = 1000, id = "ranger2")), 
+                 filter,
+                 "continuous")
+#> ℹ n effective = 32. Setting cross-validation folds as 20
+#> ══ `mlr3superlearner()` ════════════════════════════════════════════════════════
+#>                                                   Risk Coefficients
+#> selected_features.regr.earth                  6.410371            0
+#> selected_features.regr.glm                    7.324422            0
+#> selected_features.regr.mean                  38.179982            0
+#> selected_features.regr.nnet_and_trace_FALSE  38.045065            0
+#> selected_features.regr.ranger1                6.223955            1
+#> selected_features.regr.ranger2                6.340874            0
+#> selected_features.regr.svm                    6.984882            0
+#> selected_features.regr.xgboost              223.611259            0
 ```
 
 ## Available learners
