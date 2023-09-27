@@ -4,6 +4,7 @@ compute_super_learner_weights <- function(learners, y, outcome_type, group) {
                 preds <- data.table::as.data.table(x$prediction())
                 preds[order(preds$row_ids), ][[ifelse(outcome_type == "continuous", "response", "prob.1")]]
               })
+
   x <- matrix(Reduce(`c`, x), ncol = length(learners))
   ids <- unlist(lapply(learners, function(x) x$learner$id))
   cvRisk <- apply(x, 2, function(X) compute_loss(X, y, outcome_type, group))

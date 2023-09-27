@@ -26,7 +26,7 @@ make_base_learners <- function(library, filters, outcome_type) {
 }
 
 make_filtered_base_learners <- function(stack, filters) {
-  if (inherits(filters, "PipeOpFilter")) {
+  if (inherits(filters, c("PipeOp", "Graph"))) {
     return(lapply(stack, function(x) add_filter_to_learner(x, filters)))
   }
 

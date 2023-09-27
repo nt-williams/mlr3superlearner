@@ -56,8 +56,14 @@ mlr3superlearner <- function(data, target, library, filters = NULL,
                              folds = NULL, discrete = TRUE,
                              newdata = NULL, group = NULL, info = FALSE) {
   checkmate::assert_character(target, len = 1)
-  checkmate::assert_class(filters, "PipeOpFilter", null.ok = TRUE)
-  # assert_library(library)
+
+  if (is.list(filters)) {
+    checkmate::assert_list(filters, types = c("PipeOp", "Graph", "NULL"),
+                           null.ok = TRUE, len = length(library))
+  } else {
+    checkmate::assert_multi_class(filters, c("PipeOp", "Graph"), null.ok = TRUE)
+  }
+
   checkmate::assert_number(folds, null.ok = TRUE)
   checkmate::assert_logical(discrete, len = 1)
   checkmate::assert_list(newdata, types = "list", null.ok = TRUE)

@@ -40,10 +40,10 @@ mlr3superlearner(mtcars, "mpg", c("mean", "glm", "svm", "ranger"),
 #> ℹ n effective = 32. Setting cross-validation folds as 20
 #> ══ `mlr3superlearner()` ════════════════════════════════════════════════════════
 #>                       Risk Coefficients
-#> regr.featureless 38.557677            0
-#> regr.lm          11.330770            0
-#> regr.ranger       5.832983            1
-#> regr.svm         11.569147            0
+#> regr.featureless 36.954641            0
+#> regr.lm          13.795530            0
+#> regr.ranger       5.601343            1
+#> regr.svm         11.520531            0
 
 # With hyperparameters
 fit <- mlr3superlearner(mtcars, "mpg", 
@@ -57,23 +57,23 @@ fit <- mlr3superlearner(mtcars, "mpg",
 fit
 #> ══ `mlr3superlearner()` ════════════════════════════════════════════════════════
 #>                                 Risk Coefficients
-#> regr.earth                  7.629182            0
-#> regr.glm                   13.079911            0
-#> regr.mean                  37.852138            0
-#> regr.nnet_and_trace_FALSE  39.801624            0
-#> regr.ranger1                5.626605            0
-#> regr.ranger2                5.598592            1
-#> regr.svm                   11.298687            0
-#> regr.xgboost              227.304285            0
+#> regr.earth                 10.229083            0
+#> regr.glm                   11.844035            0
+#> regr.mean                  37.913427            0
+#> regr.nnet_and_trace_FALSE  36.122053            0
+#> regr.ranger1                5.698732            0
+#> regr.ranger2                5.515630            1
+#> regr.svm                   11.393548            0
+#> regr.xgboost              227.798940            0
 
 head(data.frame(pred = predict(fit, mtcars), truth = mtcars$mpg))
 #>       pred truth
-#> 1 20.76438  21.0
-#> 2 20.76492  21.0
-#> 3 24.20269  22.8
-#> 4 20.14358  21.4
-#> 5 17.63430  18.7
-#> 6 18.87703  18.1
+#> 1 20.73517  21.0
+#> 2 20.70141  21.0
+#> 3 24.17094  22.8
+#> 4 20.14512  21.4
+#> 5 17.61156  18.7
+#> 6 18.93588  18.1
 ```
 
 ### Feature selection
@@ -96,14 +96,14 @@ mlr3superlearner(mtcars, "mpg",
 #> ℹ n effective = 32. Setting cross-validation folds as 20
 #> ══ `mlr3superlearner()` ════════════════════════════════════════════════════════
 #>                                                   Risk Coefficients
-#> selected_features.regr.earth                  6.410371            0
-#> selected_features.regr.glm                    7.324422            0
-#> selected_features.regr.mean                  38.179982            0
-#> selected_features.regr.nnet_and_trace_FALSE  38.045065            0
-#> selected_features.regr.ranger1                6.223955            1
-#> selected_features.regr.ranger2                6.340874            0
-#> selected_features.regr.svm                    6.984882            0
-#> selected_features.regr.xgboost              223.611259            0
+#> selected_features.regr.earth                  6.611653            0
+#> selected_features.regr.glm                    6.772988            0
+#> selected_features.regr.mean                  37.910305            0
+#> selected_features.regr.nnet_and_trace_FALSE  36.285030            0
+#> selected_features.regr.ranger1                5.921793            1
+#> selected_features.regr.ranger2                6.211088            0
+#> selected_features.regr.svm                    7.605195            0
+#> selected_features.regr.xgboost              228.377306            0
 ```
 
 ## Available learners
