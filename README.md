@@ -40,10 +40,10 @@ mlr3superlearner(mtcars, "mpg", c("mean", "glm", "svm", "ranger"),
 #> ℹ n effective = 32. Setting cross-validation folds as 20
 #> ══ `mlr3superlearner()` ════════════════════════════════════════════════════════
 #>                       Risk Coefficients
-#> regr.featureless 36.954641            0
-#> regr.lm          13.795530            0
-#> regr.ranger       5.601343            1
-#> regr.svm         11.520531            0
+#> regr.featureless 37.104403            0
+#> regr.lm          12.711196            0
+#> regr.svm         11.467010            0
+#> regr.ranger       5.578052            1
 
 # With hyperparameters
 fit <- mlr3superlearner(mtcars, "mpg", 
@@ -57,23 +57,23 @@ fit <- mlr3superlearner(mtcars, "mpg",
 fit
 #> ══ `mlr3superlearner()` ════════════════════════════════════════════════════════
 #>                                 Risk Coefficients
-#> regr.earth                 10.229083            0
-#> regr.glm                   11.844035            0
-#> regr.mean                  37.913427            0
-#> regr.nnet_and_trace_FALSE  36.122053            0
-#> regr.ranger1                5.698732            0
-#> regr.ranger2                5.515630            1
-#> regr.svm                   11.393548            0
-#> regr.xgboost              227.798940            0
+#> regr.mean                  37.120583       0.0000
+#> regr.glm                   12.568308       0.0000
+#> regr.xgboost              225.527789       0.0000
+#> regr.svm                   11.468963       0.0000
+#> regr.earth                  6.833758       0.0287
+#> regr.nnet_and_trace_FALSE  36.160005       0.0000
+#> regr.ranger1                5.232577       0.9713
+#> regr.ranger2                5.760638       0.0000
 
 head(data.frame(pred = predict(fit, mtcars), truth = mtcars$mpg))
 #>       pred truth
-#> 1 20.73517  21.0
-#> 2 20.70141  21.0
-#> 3 24.17094  22.8
-#> 4 20.14512  21.4
-#> 5 17.61156  18.7
-#> 6 18.93588  18.1
+#> 1 20.65693  21.0
+#> 2 20.59887  21.0
+#> 3 24.18581  22.8
+#> 4 20.09178  21.4
+#> 5 17.60347  18.7
+#> 6 18.83551  18.1
 ```
 
 ### Feature selection
@@ -96,14 +96,14 @@ mlr3superlearner(mtcars, "mpg",
 #> ℹ n effective = 32. Setting cross-validation folds as 20
 #> ══ `mlr3superlearner()` ════════════════════════════════════════════════════════
 #>                                                   Risk Coefficients
-#> selected_features.regr.earth                  6.611653            0
-#> selected_features.regr.glm                    6.772988            0
-#> selected_features.regr.mean                  37.910305            0
-#> selected_features.regr.nnet_and_trace_FALSE  36.285030            0
-#> selected_features.regr.ranger1                5.921793            1
-#> selected_features.regr.ranger2                6.211088            0
-#> selected_features.regr.svm                    7.605195            0
-#> selected_features.regr.xgboost              228.377306            0
+#> selected_features.regr.mean                  37.506877       0.0000
+#> selected_features.regr.glm                    7.801916       0.0431
+#> selected_features.regr.xgboost              225.949228       0.0003
+#> selected_features.regr.svm                    7.435692       0.0000
+#> selected_features.regr.earth                  6.424393       0.4210
+#> selected_features.regr.nnet_and_trace_FALSE  37.338876       0.0000
+#> selected_features.regr.ranger1                6.804650       0.0000
+#> selected_features.regr.ranger2                6.063907       0.5356
 ```
 
 ## Available learners
@@ -160,3 +160,25 @@ knitr::kable(available_learners("continuous"))
 | gaussianprocess | regr.gausspr      | mlr3extralearners | kernlab         |
 | glmboost        | regr.glmboost     | mlr3extralearners | mboost          |
 | rpart           | regr.rpart        | mlr3              | rpart           |
+
+``` r
+knitr::kable(available_learners("multiclass"))
+```
+
+| learner      | mlr3_learner         | mlr3_package      | learner_package |
+|:-------------|:---------------------|:------------------|:----------------|
+| mean         | classif.featureless  | mlr3              | stats           |
+| rpart        | classif.rpart        | mlr3              | rpart           |
+| gausspr      | classif.gausspr      | mlr3extralearners | kernlab         |
+| lightgbm     | classif.lightgbm     | mlr3extralearers  | lightgbm        |
+| randomforest | classif.randomForest | mlr3extralearners | randomForest    |
+| glmnet       | classif.glmnet       | mlr3learners      | glmnet          |
+| cv_glmnet    | classif.cv_glmnet    | mlr3learners      | glmnet          |
+| knn          | classif.kknn         | mlr3learners      | kknn            |
+| lda          | classif.lda          | mlr3learners      | MASS            |
+| multinom     | classif.multinom     | mlr3learners      | nnet            |
+| naivebayes   | classif.naive_bayes  | mlr3learners      | e1071           |
+| nnet         | classif.nnet         | mlr3learners      | nnet            |
+| ranger       | classif.ranger       | mlr3learners      | ranger          |
+| svm          | classif.svm          | mlr3learners      | e1071           |
+| xgboost      | classif.xgboost      | mlr3learners      | xgboost         |

@@ -4,7 +4,7 @@
 \alias{predict.mlr3superlearner}
 \title{Predict method for \code{mlr3superlearner} object}
 \usage{
-\method{predict}{mlr3superlearner}(object, newdata, ...)
+\method{predict}{mlr3superlearner}(object, newdata, discrete = TRUE, ...)
 }
 \arguments{
 \item{object}{[\code{mlr3superlearner}]\cr
@@ -12,6 +12,9 @@ An object returned from \code{mlr3superlearner()}.}
 
 \item{newdata}{data [\code{data.frame}]\cr
 A \code{data.frame} containing predictors.}
+
+\item{discrete}{[\code{logical(1)}]\cr
+Return the discrete Super Learner, or the ensemble Super Learner?}
 
 \item{...}{Unused.}
 }

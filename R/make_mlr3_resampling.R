@@ -13,3 +13,17 @@ make_mlr3_resampling <- function(task, folds) {
   task$col_roles$stratum <- task$col_roles$target
   mlr3::rsmp("cv", folds = folds)
 }
+
+# set_mlr3_resampling <- function(task) {
+#   if (inherits(task, "TaskRegr")) {
+#     return(invisible())
+#   }
+#
+#   if (length(task$col_roles$group) != 0) {
+#     warning("Cannot perform stratified CV with `group`. Performing blocked CV.", call. = FALSE)
+#     return(invisible())
+#   }
+#
+#   task$col_roles$stratum <- task$col_roles$target
+#   return(invisible(task))
+# }

@@ -6,7 +6,7 @@ make_base_learners <- function(library, filters, outcome_type) {
       args <- as.list(info)[-1]
       args$.key <- lookup(info[[1]], outcome_type)
       args$id <- make_learner_id(info, outcome_type)
-      if (outcome_type == "binomial") args$predict_type <- "prob"
+      if (outcome_type %in% c("binomial", "multiclass")) args$predict_type <- "prob"
 
       do.call(mlr3::lrn, args)
     })
@@ -14,7 +14,7 @@ make_base_learners <- function(library, filters, outcome_type) {
     has_necessary_packages(library, outcome_type)
 
     args <- list(.keys = lookup(library, outcome_type))
-    if (outcome_type == "binomial") args$predict_type <- "prob"
+    if (outcome_type %in% c("binomial", "multiclass")) args$predict_type <- "prob"
     stack <- do.call(mlr3::lrns, args)
   }
 

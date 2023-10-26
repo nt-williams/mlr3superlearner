@@ -13,8 +13,6 @@
 #'  The outcome variable type.
 #' @param folds [\code{numeric(1)}]\cr
 #'  The number of cross-validation folds, or if \code{NULL} will be dynamically determined.
-#' @param discrete [\code{logical(1)}]\cr
-#'  Return the discrete Super Learner, or the ensemble Super Learner?
 #' @param newdata [\code{list}]\cr
 #'  A \code{list} of \code{data.frames} to generate predictions from.
 #' @param group [\code{character(1)}]\cr
@@ -28,6 +26,7 @@
 #'
 #' @import mlr3learners
 #' @importFrom stats coef
+#' @importFrom mlr3pipelines po
 #'
 #' @export
 #'
@@ -52,7 +51,7 @@
 #'     mlr3superlearner(tmp, "Y", c("glm", "ranger"), filter, "binomial")
 #' }
 mlr3superlearner <- function(data, target, library, filters = NULL,
-                             outcome_type = c("binomial", "continuous"),
+                             outcome_type = c("binomial", "continuous", "multiclass"),
                              folds = NULL, discrete = TRUE,
                              newdata = NULL, group = NULL, info = FALSE) {
   checkmate::assert_character(target, len = 1)
@@ -68,8 +67,6 @@ mlr3superlearner <- function(data, target, library, filters = NULL,
   checkmate::assert_logical(discrete, len = 1)
   checkmate::assert_list(newdata, types = "list", null.ok = TRUE)
 
-  ensemble <- make_base_learners(library, filters, outcome_type)
-
   if (info) {
     lgr::get_logger("mlr3")$set_threshold("info")
     on.exit(lgr::get_logger("mlr3")$set_threshold("warn"))
@@ -81,6 +78,8 @@ mlr3superlearner <- function(data, target, library, filters = NULL,
                        match.arg(outcome_type), data[[target]])
   }
 
+  ensemble <- make_base_learners(library, filters, outcome_type)
+
   task <- make_mlr3_task(data, target, outcome_type)
 
   if (!is.null(group)) {
@@ -89,36 +88,18 @@ mlr3superlearner <- function(data, target, library, filters = NULL,
 
   resampling <- make_mlr3_resampling(task, folds)
 
-  meta <- compute_super_learner_weights(
-    lapply(ensemble, function(algo) mlr3::resample(task, algo, resampling)),
-    data[[target]],
-    outcome_type,
-    {if (is.null(group)) 1:nrow(data)
-      else data[[group]]}
-  )
+  fits <- lapply(ensemble, fit_base_learner, task = task, resampling = resampling)
+  ml <- make_metalearner(outcome_type)$train(po("featureunion")$train(purrr::map(fits, "task"))$output)
+  wts <- ml$model$weights / sum(ml$model$weights)
+  names(wts) <- sapply(fits, function(x) x$learner$id)
 
-  if (length(library) == 1 || discrete) {
-    weights <- vector("numeric", length(library))
-    names(weights) <- unlist(lapply(ensemble, function(x) x$id))
-    is_discrete <- which.min(meta$risk)
-    weights[is_discrete] <- 1
-    ensemble <- lapply(ensemble[is_discrete], function(algo) algo$train(task))
-    meta$metalearner <- NULL
-  } else {
-    ensemble <- lapply(ensemble, function(algo) algo$train(task))
-    weights <- as.matrix(coef(meta$metalearner$model))
-    weights <- weights[rownames(weights) %in% unlist(lapply(ensemble, function(x) x$id)), 1]
-    weights <- weights / sum(weights)
-  }
-
-  sl <- list(learners = ensemble,
-             metalearner = meta$metalearner,
-             weights = weights[order(names(weights))],
-             risk = meta$risk[order(names(meta$risk))],
+  sl <- list(metalearner = ml,
+             base_learners = setNames(purrr::map(fits, function(x) x$learner), names(wts)),
+             weights = wts,
+             risk = setNames(purrr::map_dbl(fits, function(x) x$score), names(wts)),
              outcome_type = outcome_type,
              folds = folds,
-             x = setdiff(names(data), target),
-             discrete = discrete)
+             train_task = task)
 
   class(sl) <- "mlr3superlearner"
 
@@ -129,4 +110,40 @@ mlr3superlearner <- function(data, target, library, filters = NULL,
 
   sl$preds <- lapply(newdata, function(x) predict.mlr3superlearner(sl, x))
   sl
+}
+
+fit_base_learner <- function(learner, task, resampling) {
+  msr_func <- ifelse(task$task_type == "regr", "regr.mse", "classif.logloss")
+  pred <- resample(task, learner, resampling)$prediction()
+  score <- pred$score(mlr3::msr(msr_func))
+  new_task <- pred_to_task(as.data.table(pred), task, learner)
+  learner$train(task)
+  list(task = new_task, learner = learner, score = score)
+}
+
+#' @importFrom data.table `:=` setnames
+pred_to_task = function(prds, task, learner) {
+  out_task <- task$clone()
+  if (!is.null(prds$truth)) prds[, truth := NULL]
+  if (learner$predict_type == "prob") {
+    prds[, response := NULL]
+  }
+
+  renaming = setdiff(colnames(prds), c("row_id", "row_ids"))
+  if (task$task_type == "regr") newnames <- "response"
+  else newnames <- renaming
+  setnames(prds, renaming, sprintf("%s.%s", learner$id, newnames))
+
+  row_id_col = intersect(colnames(prds), c("row_id", "row_ids"))
+  setnames(prds, old = row_id_col, new = task$backend$primary_key)
+  out_task$select(character(0))$cbind(prds)
+  out_task
+}
+
+fu_base_learners <- function(ensemble, newdata, task) {
+  tasks <- lapply(ensemble, function(lrn) {
+    pred <- lrn$predict_newdata(newdata)
+    pred_to_task(as.data.table(pred), task, lrn)
+  })
+  po("featureunion")$train(tasks)$output
 }

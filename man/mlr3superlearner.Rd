@@ -9,7 +9,7 @@ mlr3superlearner(
   target,
   library,
   filters = NULL,
-  outcome_type = c("binomial", "continuous"),
+  outcome_type = c("binomial", "continuous", "multiclass"),
   folds = NULL,
   discrete = TRUE,
   newdata = NULL,
@@ -34,9 +34,6 @@ The outcome variable type.}
 
 \item{folds}{[\code{numeric(1)}]\cr
 The number of cross-validation folds, or if \code{NULL} will be dynamically determined.}
-
-\item{discrete}{[\code{logical(1)}]\cr
-Return the discrete Super Learner, or the ensemble Super Learner?}
 
 \item{newdata}{[\code{list}]\cr
 A \code{list} of \code{data.frames} to generate predictions from.}
