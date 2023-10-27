@@ -33,7 +33,7 @@ available_learners_multiclass <- function() {
   data.table::data.table(
     learner = c("mean", "rpart", "gausspr", "lightgbm", "randomforest", "glmnet", "cv_glmnet", "knn", "lda", "multinom", "naivebayes", "nnet", "ranger", "svm", "xgboost"),
     mlr3_learner = paste0("classif.", c("featureless", "rpart", "gausspr", "lightgbm", "randomForest", "glmnet", "cv_glmnet", "kknn", "lda", "multinom", "naive_bayes", "nnet", "ranger", "svm", "xgboost")),
-    mlr3_package = c("mlr3", "mlr3", "mlr3extralearners", "mlr3extralearers", "mlr3extralearners", "mlr3learners", "mlr3learners", "mlr3learners", "mlr3learners", "mlr3learners", "mlr3learners", "mlr3learners", "mlr3learners", "mlr3learners", "mlr3learners"),
+    mlr3_package = c("mlr3", "mlr3", "mlr3extralearners", "mlr3extralearners", "mlr3extralearners", "mlr3learners", "mlr3learners", "mlr3learners", "mlr3learners", "mlr3learners", "mlr3learners", "mlr3learners", "mlr3learners", "mlr3learners", "mlr3learners"),
     learner_package = c("stats", "rpart", "kernlab", "lightgbm", "randomForest", "glmnet", "glmnet", "kknn", "MASS", "nnet", "e1071", "nnet", "ranger", "e1071", "xgboost")
   )
 }
