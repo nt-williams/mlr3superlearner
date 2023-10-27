@@ -27,7 +27,7 @@ predict.mlr3superlearner <- function(object, newdata, discrete = TRUE, ...) {
   if (!discrete) {
     pred <- object$metalearner$predict(
       fu_base_learners(object$base_learners,
-                       newdata[, object$train_task$feature_names],
+                       as.data.frame(newdata)[, object$train_task$feature_names],
                        object$train_task)
     )
   } else {
