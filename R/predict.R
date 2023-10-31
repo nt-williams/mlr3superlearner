@@ -32,7 +32,7 @@ predict.mlr3superlearner <- function(object, newdata, discrete = TRUE, ...) {
     )
   } else {
     dSL <- names(which.min(object$risk))
-    pred <- object$base_learners[[dSL]]$predict_newdata(newdata)
+    pred <- object$base_learners[[dSL]]$predict_newdata(newdata[, object$train_task$feature_names])
   }
 
   pred <- as.data.table(pred)
