@@ -13,13 +13,13 @@
 #'  The outcome variable type.
 #' @param folds [\code{numeric(1)}]\cr
 #'  The number of cross-validation folds, or if \code{NULL} will be dynamically determined.
-#' @param newdata [\code{list}]\cr
-#'  A \code{list} of \code{data.frames} to generate predictions from.
-#' @param discrete [\code{logical(1)}]\cr
 #' @param group [\code{character(1)}]\cr
 #'  Name of a grouping variable in \code{data}. Assumed to be discrete;
 #'  observations in the same group are treated like a "block" of observations
 #'  kept together during sample splitting.
+#' @param newdata [\code{list}]\cr
+#'  A \code{list} of \code{data.frames} to generate predictions from.
+#' @param discrete [\code{logical(1)}]\cr
 #' @param info [\code{logical(1)}]\cr
 #'  Print learner fitting information to the console.
 #'
@@ -53,8 +53,8 @@
 #' }
 mlr3superlearner <- function(data, target, library, filters = NULL,
                              outcome_type = c("binomial", "continuous", "multiclass"),
-                             folds = NULL,
-                             newdata = NULL, group = NULL, discrete = TRUE, info = FALSE) {
+                             folds = NULL, group = NULL,
+                             newdata = NULL, discrete = FALSE, info = FALSE) {
   checkmate::assert_character(target, len = 1)
 
   if (is.list(filters)) {
@@ -123,37 +123,37 @@ fit_base_learner <- function(learner, task, resampling) {
 }
 
 #' @importFrom data.table `:=` setnames
-pred_to_task = function(prds, task, learner) {
+pred_to_task <- function(prds, task, learner) {
   out_task <- task$clone()
   if (!is.null(prds$truth)) prds[, truth := NULL]
   if (learner$predict_type == "prob") {
     prds[, response := NULL]
   }
 
-  renaming = setdiff(colnames(prds), c("row_id", "row_ids"))
+  renaming <- setdiff(colnames(prds), c("row_id", "row_ids"))
   if (task$task_type == "regr") newnames <- "response"
   else newnames <- renaming
   setnames(prds, renaming, sprintf("%s.%s", learner$id, newnames))
 
-  row_id_col = intersect(colnames(prds), c("row_id", "row_ids"))
+  row_id_col <- intersect(colnames(prds), c("row_id", "row_ids"))
   setnames(prds, old = row_id_col, new = task$backend$primary_key)
   out_task$select(character(0))$cbind(prds)
   out_task
 }
 
 #' @importFrom data.table `:=` setnames
-pred_to_newdata = function(prds, task, learner) {
+pred_to_newdata <- function(prds, task, learner) {
   if (!is.null(prds$truth)) prds[, truth := NULL]
   if (learner$predict_type == "prob") {
     prds[, response := NULL]
   }
 
-  renaming = setdiff(colnames(prds), c("row_id", "row_ids"))
+  renaming <- setdiff(colnames(prds), c("row_id", "row_ids"))
   if (task$task_type == "regr") newnames <- "response"
   else newnames <- renaming
   setnames(prds, renaming, sprintf("%s.%s", learner$id, newnames))
 
-  row_id_col = intersect(colnames(prds), c("row_id", "row_ids"))
+  row_id_col <- intersect(colnames(prds), c("row_id", "row_ids"))
   setnames(prds, old = row_id_col, new = task$backend$primary_key)
   prds
 }
