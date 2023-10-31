@@ -9,8 +9,9 @@ make_learner_id <- function(x, outcome_type) {
 }
 
 set_folds <- function(n, outcome_type, target) {
-  if (outcome_type == "binomial") {
-    nrare <- n*min(mean(target), 1 - mean(target))
+  if (outcome_type %in% c("binomial", "multiclass")) {
+    # nrare <- n*min(mean(target), 1 - mean(target))
+    nrare <- n*min(prop.table(table(target)))
     neff <- min(n, 5*nrare)
   } else {
     neff <- n

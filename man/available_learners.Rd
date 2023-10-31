@@ -4,7 +4,7 @@
 \alias{available_learners}
 \title{Learners Available for Use}
 \usage{
-available_learners(outcome_type = c("binomial", "continuous"))
+available_learners(outcome_type = c("binomial", "continuous", "multiclass"))
 }
 \arguments{
 \item{outcome_type}{The outcome variable type.}
