@@ -27,12 +27,12 @@ predict.mlr3superlearner <- function(object, newdata, discrete = TRUE, ...) {
   if (!discrete) {
     pred <- object$metalearner$predict_newdata(
       fu_base_learners(object$base_learners,
-                       as.data.frame(newdata)[, object$train_task$feature_names],
+                       as.data.frame(newdata)[, object$train_task$feature_names, drop = FALSE],
                        object$train_task)
     )
   } else {
     dSL <- names(which.min(object$risk))
-    pred <- object$base_learners[[dSL]]$predict_newdata(newdata[, object$train_task$feature_names])
+    pred <- object$base_learners[[dSL]]$predict_newdata(newdata[, object$train_task$feature_names, drop = FALSE])
   }
 
   pred <- as.data.table(pred)
