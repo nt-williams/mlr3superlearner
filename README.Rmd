@@ -38,7 +38,7 @@ library(mlr3superlearner)
 library(mlr3extralearners)
 
 # No hyperparameters
-fit <- mlr3superlearner(mtcars, "mpg", c("mean", "glm", "svm", "ranger"), "continuous")
+mlr3superlearner(mtcars, "mpg", c("mean", "glm", "svm", "ranger"), "continuous")
 
 # With hyperparameters
 fit <- mlr3superlearner(mtcars, "mpg", 

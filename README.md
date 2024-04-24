@@ -35,8 +35,14 @@ library(mlr3superlearner)
 library(mlr3extralearners)
 
 # No hyperparameters
-fit <- mlr3superlearner(mtcars, "mpg", c("mean", "glm", "svm", "ranger"), "continuous")
-#> ℹ Setting cross-validation folds as 20
+mlr3superlearner(mtcars, "mpg", c("mean", "glm", "svm", "ranger"), "continuous")
+#> ℹ n effective = 32. Setting cross-validation folds as 20
+#> ══ `mlr3superlearner()` ════════════════════════════════════════════════════════
+#>                      Risk Coefficients
+#> regr.featureless 37.82487            0
+#> regr.lm          12.21920            0
+#> regr.ranger       5.70615            1
+#> regr.svm         11.38053            0
 
 # With hyperparameters
 fit <- mlr3superlearner(mtcars, "mpg", 
@@ -45,28 +51,28 @@ fit <- mlr3superlearner(mtcars, "mpg",
                              list("ranger", num.trees = 500, id = "ranger1"),
                              list("ranger", num.trees = 1000, id = "ranger2")), 
                         "continuous")
-#> ℹ Setting cross-validation folds as 20
+#> ℹ n effective = 32. Setting cross-validation folds as 20
 
 fit
 #> ══ `mlr3superlearner()` ════════════════════════════════════════════════════════
 #>                                 Risk Coefficients
-#> regr.earth                 10.578953            0
-#> regr.glm                   11.543067            0
-#> regr.mean                  38.831338            0
-#> regr.nnet_and_trace_FALSE  37.493411            0
-#> regr.ranger1                5.725750            0
-#> regr.ranger2                5.641004            1
-#> regr.svm                   11.535177            0
-#> regr.xgboost              226.947489            0
+#> regr.earth                  7.781849            0
+#> regr.glm                   12.166336            0
+#> regr.mean                  37.891555            0
+#> regr.nnet_and_trace_FALSE  36.086681            0
+#> regr.ranger1                5.953228            0
+#> regr.ranger2                5.724181            1
+#> regr.svm                   11.223307            0
+#> regr.xgboost              225.854354            0
 
 head(data.frame(pred = predict(fit, mtcars), truth = mtcars$mpg))
 #>       pred truth
-#> 1 20.78731  21.0
-#> 2 20.75069  21.0
-#> 3 24.09735  22.8
-#> 4 20.29066  21.4
-#> 5 17.64259  18.7
-#> 6 19.01303  18.1
+#> 1 20.74050  21.0
+#> 2 20.70535  21.0
+#> 3 24.25158  22.8
+#> 4 20.21326  21.4
+#> 5 17.67443  18.7
+#> 6 18.98955  18.1
 ```
 
 ## Available learners
@@ -98,6 +104,7 @@ knitr::kable(available_learners("binomial"))
 | gaussianprocess | classif.gausspr      | mlr3extralearners | kernlab         |
 | glmboost        | classif.glmboost     | mlr3extralearners | mboost          |
 | nloptr          | classif.avg          | mlr3pipelines     | nloptr          |
+| rpart           | classif.rpart        | mlr3              | rpart           |
 
 ``` r
 knitr::kable(available_learners("continuous"))
@@ -121,3 +128,4 @@ knitr::kable(available_learners("continuous"))
 | gam             | regr.gam          | mlr3extralearners | mgcv            |
 | gaussianprocess | regr.gausspr      | mlr3extralearners | kernlab         |
 | glmboost        | regr.glmboost     | mlr3extralearners | mboost          |
+| rpart           | regr.rpart        | mlr3              | rpart           |

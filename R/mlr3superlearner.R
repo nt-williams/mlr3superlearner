@@ -57,7 +57,9 @@ mlr3superlearner <- function(data, target, library,
   }
 
   if (is.null(folds)) {
-    folds <- set_folds(nrow(data), match.arg(outcome_type), data[[target]])
+    folds <- set_folds({if (is.null(group)) nrow(data)
+                          else length(unique(data[[group]]))},
+                       match.arg(outcome_type), data[[target]])
   }
 
   task <- make_mlr3_task(data, target, outcome_type)
@@ -70,8 +72,10 @@ mlr3superlearner <- function(data, target, library,
 
   meta <- compute_super_learner_weights(
     lapply(ensemble, function(algo) mlr3::resample(task, algo, resampling)),
-    y = data[[target]],
-    outcome_type
+    data[[target]],
+    outcome_type,
+    {if (is.null(group)) 1:nrow(data)
+      else data[[group]]}
   )
 
   if (length(library) == 1 || discrete) {
