@@ -7,5 +7,6 @@ make_mlr3_task <- function(data, target, outcome_type) {
 
   switch(outcome_type,
          binomial = do.call(as_task_classif, args),
+         multiclass = do.call(as_task_classif, args),
          continuous = do.call(as_task_regr, args))
 }

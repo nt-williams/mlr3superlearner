@@ -4,7 +4,7 @@
 \alias{predict.mlr3superlearner}
 \title{Predict method for \code{mlr3superlearner} object}
 \usage{
-\method{predict}{mlr3superlearner}(object, newdata, ...)
+\method{predict}{mlr3superlearner}(object, newdata, discrete = TRUE, ...)
 }
 \arguments{
 \item{object}{[\code{mlr3superlearner}]\cr
@@ -12,6 +12,9 @@ An object returned from \code{mlr3superlearner()}.}
 
 \item{newdata}{data [\code{data.frame}]\cr
 A \code{data.frame} containing predictors.}
+
+\item{discrete}{[\code{logical(1)}]\cr
+Return the discrete Super Learner, or the ensemble Super Learner?}
 
 \item{...}{Unused.}
 }
@@ -28,7 +31,7 @@ if (requireNamespace("ranger", quietly = TRUE)) {
   A <- rbinom(n, 1, 1 / (1 + exp(-(.2*W[,1] - .1*W[,2] + .4*W[,3]))))
   Y <- rbinom(n,1, plogis(A + 0.2*W[,1] + 0.1*W[,2] + 0.2*W[,3]^2 ))
   tmp <- data.frame(W, A, Y)
-  fit <- mlr3superlearner(tmp, "Y", c("glm", "ranger"), "binomial")
+  fit <- mlr3superlearner(tmp, "Y", c("glm", "ranger"), outcome_type = "binomial")
   predict(fit, tmp)
 }
 }
