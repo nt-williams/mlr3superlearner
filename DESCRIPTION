@@ -18,8 +18,11 @@ Imports:
     mlr3,
     data.table,
     purrr,
-    cli
-RoxygenNote: 7.2.3
+    cli,
+    paradox,
+    R6,
+    mlr3misc
+RoxygenNote: 7.3.1
 Depends: 
     mlr3learners
 Suggests: 
