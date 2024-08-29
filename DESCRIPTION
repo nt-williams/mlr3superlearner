@@ -18,8 +18,9 @@ Imports:
     mlr3,
     data.table,
     purrr,
-    cli
-RoxygenNote: 7.2.3
+    cli,
+    glmnet
+RoxygenNote: 7.3.1
 Depends: 
     mlr3learners
 Suggests: 

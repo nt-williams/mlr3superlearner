@@ -23,11 +23,11 @@ A \code{data.frame} containing predictors and target variable.}
 \item{target}{[\code{character(1)}]\cr
 The name of the target variable in \code{data}.}
 
-\item{library}{[\code{character}]\cr
-A vector of algorithms to be used for prediction.}
+\item{library}{[\code{character}] or [\code{list}]\cr
+A vector or list of algorithms to be used for prediction.}
 
 \item{outcome_type}{[\code{character(1)}]\cr
-The outcome variable type.}
+The outcome variable type. Options are "binomial" and "continuous".}
 
 \item{folds}{[\code{numeric(1)}]\cr
 The number of cross-validation folds, or if \code{NULL} will be dynamically determined.}

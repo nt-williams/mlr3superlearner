@@ -1,3 +1,4 @@
+#' @importFrom glmnet glmnet
 compute_super_learner_weights <- function(learners, y, outcome_type, group) {
   x <- lapply(learners,
               function(x) {

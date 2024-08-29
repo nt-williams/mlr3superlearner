@@ -6,10 +6,10 @@
 #'  A \code{data.frame} containing predictors and target variable.
 #' @param target [\code{character(1)}]\cr
 #'  The name of the target variable in \code{data}.
-#' @param library [\code{character}]\cr
-#'  A vector of algorithms to be used for prediction.
+#' @param library [\code{character}] or [\code{list}]\cr
+#'  A vector or list of algorithms to be used for prediction.
 #' @param outcome_type [\code{character(1)}]\cr
-#'  The outcome variable type.
+#'  The outcome variable type. Options are "binomial" and "continuous".
 #' @param folds [\code{numeric(1)}]\cr
 #'  The number of cross-validation folds, or if \code{NULL} will be dynamically determined.
 #' @param discrete [\code{logical(1)}]\cr
