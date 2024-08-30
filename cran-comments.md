@@ -1,5 +1,10 @@
 ## Version 0.1.1 submission
 
+## Notes
+
+-   Removed markup from the DESCRIPTION
+-   Added reference for the method to the DESCRIPTION
+
 ## Test environments
 
 -   Mac OS, ARM64 (local install), R release
