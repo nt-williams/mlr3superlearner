@@ -8,7 +8,7 @@ make_learner_id <- function(x, outcome_type) {
   paste0(predicate, ".", x[[1]])
 }
 
-set_folds <- function(n, outcome_type, target) {
+set_folds <- function(n, outcome_type, target, info) {
   if (outcome_type == "binomial") {
     nrare <- n*min(mean(target), 1 - mean(target))
     neff <- min(n, 5*nrare)
@@ -22,6 +22,6 @@ set_folds <- function(n, outcome_type, target) {
   if (neff >= 5000) folds <- 5
   if (neff >= 1e4) folds <- 2
 
-  cli::cli_alert_info("n effective = {neff}. Setting cross-validation folds as {folds}")
+  if (info) cli::cli_alert_info("n effective = {neff}. Setting cross-validation folds as {folds}")
   folds
 }
