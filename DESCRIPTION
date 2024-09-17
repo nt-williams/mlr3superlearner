@@ -1,7 +1,7 @@
 Package: mlr3superlearner
 Type: Package
 Title: Super Learner Fitting and Prediction
-Version: 0.1.2
+Version: 0.1.3
 Authors@R: 
     c(person(given = "Nicholas",
              family = "Williams",
