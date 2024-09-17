@@ -5,7 +5,6 @@ make_mlr3_resampling <- function(task, folds) {
   }
 
   if (length(task$col_roles$group) != 0) {
-    warning("Cannot perform stratified CV with `group`. Performing blocked CV.", call. = FALSE)
     out <- mlr3::rsmp("cv", folds = folds)
     return(out)
   }
