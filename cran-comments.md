@@ -1,9 +1,6 @@
-## Version 0.1.1 submission
+## Version 0.1.2 submission
 
 ## Notes
-
--   Removed markup from the DESCRIPTION
--   Added reference for the method to the DESCRIPTION
 
 ## Test environments
 
@@ -15,6 +12,4 @@
 
 ## R CMD check results
 
-0 errors | 0 warnings | 1 note
-
-* This is a new release.
+0 errors | 0 warnings | 0 notes
