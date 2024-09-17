@@ -33,46 +33,56 @@ library(mlr3superlearner)
 #> Loading required package: mlr3learners
 #> Loading required package: mlr3
 library(mlr3extralearners)
+library(mlr3filters)
+library(mlr3pipelines)
 
 # No hyperparameters
 mlr3superlearner(mtcars, "mpg", c("mean", "glm", "svm", "ranger"), "continuous")
-#> ℹ n effective = 32. Setting cross-validation folds as 20
 #> ══ `mlr3superlearner()` ════════════════════════════════════════════════════════
-#>                      Risk Coefficients
-#> regr.featureless 37.82487            0
-#> regr.lm          12.21920            0
-#> regr.ranger       5.70615            1
-#> regr.svm         11.38053            0
+#>                       Risk Coefficients
+#> regr.featureless 37.106775            0
+#> regr.lm          13.131778            0
+#> regr.ranger       5.788795            1
+#> regr.svm         11.475654            0
 
 # With hyperparameters
+
+# Add layer of feature selection
+filter <- po(
+  "filter",
+  filter = flt("selected_features", learner = lrn("regr.cv_glmnet")),
+  filter.cutoff = 1
+)
+
 fit <- mlr3superlearner(mtcars, "mpg", 
-                        list("mean", "glm", "xgboost", "svm", "earth",
+                        list("mean", "xgboost", "svm", "earth",
+                             list("glm", filter = filter),
                              list("nnet", trace = FALSE),
                              list("ranger", num.trees = 500, id = "ranger1"),
                              list("ranger", num.trees = 1000, id = "ranger2")), 
-                        "continuous")
-#> ℹ n effective = 32. Setting cross-validation folds as 20
+                        "continuous", 
+                        discrete = FALSE)
 
 fit
 #> ══ `mlr3superlearner()` ════════════════════════════════════════════════════════
-#>                                 Risk Coefficients
-#> regr.earth                  7.781849            0
-#> regr.glm                   12.166336            0
-#> regr.mean                  37.891555            0
-#> regr.nnet_and_trace_FALSE  36.086681            0
-#> regr.ranger1                5.953228            0
-#> regr.ranger2                5.724181            1
-#> regr.svm                   11.223307            0
-#> regr.xgboost              225.854354            0
+#>                                  Risk Coefficients
+#> regr.earth                  12.192664   0.00000000
+#> regr.mean                   37.286356   0.00000000
+#> regr.nnet_and_trace_FALSE   37.315237   0.00000000
+#> regr.ranger1                 5.819856   0.87302620
+#> regr.ranger2                 5.695122   0.05274128
+#> regr.svm                    11.343550   0.00000000
+#> regr.xgboost               230.128458   0.00000000
+#> selected_features.regr.glm   9.907269   0.07423252
 
 head(data.frame(pred = predict(fit, mtcars), truth = mtcars$mpg))
 #>       pred truth
-#> 1 20.74050  21.0
-#> 2 20.70535  21.0
-#> 3 24.25158  22.8
-#> 4 20.21326  21.4
-#> 5 17.67443  18.7
-#> 6 18.98955  18.1
+#> 1 20.89734  21.0
+#> 2 20.83539  21.0
+#> 3 24.17946  22.8
+#> 4 20.25305  21.4
+#> 5 17.56456  18.7
+#> 6 19.05933  18.1
 ```
 
 ## Available learners
