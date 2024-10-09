@@ -12,6 +12,16 @@ has_necessary_packages <- function(learners, outcome_type) {
     }
   }
 
+  if ("mlr3torch" %in% avail$mlr3_package) {
+    if (!("mlr3torch" %in% (.packages()))) {
+      if ("mlr3torch" %in% .packages(all.available = TRUE)) {
+        cli::cli_abort("{.pkg mlr3torch} required. Run {.code library(mlr3torch)}")
+      } else {
+        cli::cli_abort("{.pkg mlr3torch} required. Install with {.code install.packages('mlr3torch')}")
+      }
+    }
+  }
+
   has_pkg <- sapply(avail$learner_package, function(x) (requireNamespace(x, quietly = TRUE)))
   unavailable <- avail$learner_package[!has_pkg]
   if (length(unavailable) != 0) {
