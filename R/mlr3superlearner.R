@@ -16,6 +16,7 @@
 #'  Return the discrete Super Learner, or the ensemble Super Learner?
 #' @param newdata [\code{list}]\cr
 #'  A \code{list} of \code{data.frames} to generate predictions from.
+#' @param wts [\code{character(1)}]\cr
 #' @param group [\code{character(1)}]\cr
 #'  Name of a grouping variable in \code{data}. Assumed to be discrete;
 #'  observations in the same group are treated like a "block" of observations
@@ -42,7 +43,7 @@
 mlr3superlearner <- function(data, target, library,
                              outcome_type = c("binomial", "continuous"),
                              folds = NULL, discrete = TRUE,
-                             newdata = NULL, group = NULL, info = FALSE) {
+                             newdata = NULL, wts = NULL, group = NULL, info = FALSE) {
   checkmate::assert_character(target, len = 1)
   checkmate::assert_number(folds, null.ok = TRUE)
   checkmate::assert_logical(discrete, len = 1)
@@ -66,6 +67,10 @@ mlr3superlearner <- function(data, target, library,
 
   task <- make_mlr3_task(data, target, outcome_type)
 
+  if (!is.null(wts)) {
+    task$set_col_roles(wts, "weight")
+  }
+
   if (!is.null(group)) {
     task$set_col_roles(group, "group")
   }
@@ -82,7 +87,7 @@ mlr3superlearner <- function(data, target, library,
       risk = NA_real_,
       outcome_type = outcome_type,
       folds = NULL,
-      x = setdiff(names(data), target),
+      x = setdiff(setdiff(names(data), target), wts),
       discrete = TRUE
     )
   }
@@ -124,7 +129,7 @@ mlr3superlearner <- function(data, target, library,
       risk = meta$risk[order(names(meta$risk))],
       outcome_type = outcome_type,
       folds = folds,
-      x = setdiff(names(data), target),
+      x = setdiff(setdiff(names(data), target), wts),
       discrete = discrete
     )
   }
