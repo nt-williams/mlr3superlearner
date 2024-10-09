@@ -35,15 +35,17 @@ library(mlr3superlearner)
 library(mlr3extralearners)
 library(mlr3filters)
 library(mlr3pipelines)
+library(mlr3torch)
+#> Loading required package: torch
 
 # No hyperparameters
 mlr3superlearner(mtcars, "mpg", c("mean", "glm", "svm", "ranger"), "continuous")
 #> ══ `mlr3superlearner()` ════════════════════════════════════════════════════════
 #>                       Risk Coefficients
-#> regr.featureless 37.106775            0
-#> regr.lm          13.131778            0
-#> regr.ranger       5.788795            1
-#> regr.svm         11.475654            0
+#> regr.featureless 37.926212            0
+#> regr.lm          11.399403            0
+#> regr.ranger       6.094831            1
+#> regr.svm         11.399788            0
 
 # With hyperparameters
 
@@ -59,30 +61,36 @@ fit <- mlr3superlearner(mtcars, "mpg",
                              list("glm", filter = filter),
                              list("nnet", trace = FALSE),
                              list("ranger", num.trees = 500, id = "ranger1"),
-                             list("ranger", num.trees = 1000, id = "ranger2")), 
+                             list("ranger", num.trees = 1000, id = "ranger2"), 
+                             list("mlp", epochs = 50, validate = 0.3, batch_size = 8, 
+                                  t_opt("adam", lr = 0.1), id = "mlp")), 
                         "continuous", 
                         discrete = FALSE)
+#> Warning in warn_deprecated("Learner$initialize argument 'data_formats'"):
+#> Learner$initialize argument 'data_formats' is deprecated and will be removed in
+#> the future.
 
 fit
 #> ══ `mlr3superlearner()` ════════════════════════════════════════════════════════
 #>                                  Risk Coefficients
-#> regr.earth                  12.192664   0.00000000
-#> regr.mean                   37.286356   0.00000000
-#> regr.nnet_and_trace_FALSE   37.315237   0.00000000
-#> regr.ranger1                 5.819856   0.87302620
-#> regr.ranger2                 5.695122   0.05274128
-#> regr.svm                    11.343550   0.00000000
-#> regr.xgboost               230.128458   0.00000000
-#> selected_features.regr.glm   9.907269   0.07423252
+#> regr.earth                   7.534602   0.04454516
+#> regr.mean                   37.672850   0.00000000
+#> regr.mlp                     9.452834   0.02973931
+#> regr.nnet_and_trace_FALSE   38.512142   0.00000000
+#> regr.ranger1                 5.625693   0.73099357
+#> regr.ranger2                 5.765940   0.00000000
+#> regr.svm                    11.264799   0.00000000
+#> regr.xgboost               227.277041   0.00000000
+#> selected_features.regr.glm   7.250849   0.19472197
 
 head(data.frame(pred = predict(fit, mtcars), truth = mtcars$mpg))
 #>       pred truth
-#> 1 20.89734  21.0
-#> 2 20.83539  21.0
-#> 3 24.17946  22.8
-#> 4 20.25305  21.4
-#> 5 17.56456  18.7
-#> 6 19.05933  18.1
+#> 1 21.10296  21.0
+#> 2 20.98607  21.0
+#> 3 24.68845  22.8
+#> 4 20.30662  21.4
+#> 5 17.35348  18.7
+#> 6 19.47186  18.1
 ```
 
 ## Available learners
@@ -115,6 +123,7 @@ knitr::kable(available_learners("binomial"))
 | glmboost        | classif.glmboost     | mlr3extralearners | mboost          |
 | nloptr          | classif.avg          | mlr3pipelines     | nloptr          |
 | rpart           | classif.rpart        | mlr3              | rpart           |
+| mlp             | classif.mlp          | mlr3torch         | torch           |
 
 ``` r
 knitr::kable(available_learners("continuous"))
@@ -139,3 +148,4 @@ knitr::kable(available_learners("continuous"))
 | gaussianprocess | regr.gausspr      | mlr3extralearners | kernlab         |
 | glmboost        | regr.glmboost     | mlr3extralearners | mboost          |
 | rpart           | regr.rpart        | mlr3              | rpart           |
+| mlp             | regr.mlp          | mlr3torch         | torch           |
