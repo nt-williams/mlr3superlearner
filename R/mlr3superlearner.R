@@ -6,10 +6,10 @@
 #'  A \code{data.frame} containing predictors and target variable.
 #' @param target [\code{character(1)}]\cr
 #'  The name of the target variable in \code{data}.
-#' @param library [\code{character}]\cr
-#'  A vector of algorithms to be used for prediction.
+#' @param library [\code{character}] or [\code{list}]\cr
+#'  A vector or list of algorithms to be used for prediction.
 #' @param outcome_type [\code{character(1)}]\cr
-#'  The outcome variable type.
+#'  The outcome variable type. Options are "binomial" and "continuous".
 #' @param folds [\code{numeric(1)}]\cr
 #'  The number of cross-validation folds, or if \code{NULL} will be dynamically determined.
 #' @param discrete [\code{logical(1)}]\cr
@@ -26,7 +26,7 @@
 #' @return A list of class \code{mlr3superlearner}.
 #'
 #' @import mlr3learners
-#' @importFrom stats coef
+#' @importFrom stats coef setNames
 #'
 #' @export
 #'
@@ -44,7 +44,6 @@ mlr3superlearner <- function(data, target, library,
                              folds = NULL, discrete = TRUE,
                              newdata = NULL, group = NULL, info = FALSE) {
   checkmate::assert_character(target, len = 1)
-  # checkmate::assert_character(library)
   checkmate::assert_number(folds, null.ok = TRUE)
   checkmate::assert_logical(discrete, len = 1)
   checkmate::assert_list(newdata, types = "list", null.ok = TRUE)
@@ -57,9 +56,12 @@ mlr3superlearner <- function(data, target, library,
   }
 
   if (is.null(folds)) {
-    folds <- set_folds({if (is.null(group)) nrow(data)
-                          else length(unique(data[[group]]))},
-                       match.arg(outcome_type), data[[target]])
+    folds <- set_folds({
+      if (is.null(group))
+        nrow(data)
+      else
+        length(unique(data[[group]]))
+    }, match.arg(outcome_type), data[[target]], info)
   }
 
   task <- make_mlr3_task(data, target, outcome_type)
@@ -68,38 +70,64 @@ mlr3superlearner <- function(data, target, library,
     task$set_col_roles(group, "group")
   }
 
-  resampling <- make_mlr3_resampling(task, folds)
+  if (length(library) == 1) {
+    weights <- setNames(vector("numeric", 1L), ensemble[[1]]$id)
+    weights[1] <- 1
+    ensemble[[1]] <- ensemble[[1]]$train(task)
 
-  meta <- compute_super_learner_weights(
-    lapply(ensemble, function(algo) mlr3::resample(task, algo, resampling)),
-    data[[target]],
-    outcome_type,
-    {if (is.null(group)) 1:nrow(data)
-      else data[[group]]}
-  )
-
-  if (length(library) == 1 || discrete) {
-    weights <- vector("numeric", length(library))
-    names(weights) <- unlist(lapply(ensemble, function(x) x$id))
-    is_discrete <- which.min(meta$risk)
-    weights[is_discrete] <- 1
-    ensemble <- lapply(ensemble[is_discrete], function(algo) algo$train(task))
-    meta$metalearner <- NULL
-  } else {
-    ensemble <- lapply(ensemble, function(algo) algo$train(task))
-    weights <- as.matrix(coef(meta$metalearner$model))
-    weights <- weights[rownames(weights) %in% unlist(lapply(ensemble, function(x) x$id)), 1]
-    weights <- weights / sum(weights)
+    sl <- list(
+      learners = ensemble,
+      metalearner = NULL,
+      weights = weights[order(names(weights))],
+      risk = NA_real_,
+      outcome_type = outcome_type,
+      folds = NULL,
+      x = setdiff(names(data), target),
+      discrete = TRUE
+    )
   }
 
-  sl <- list(learners = ensemble,
-             metalearner = meta$metalearner,
-             weights = weights[order(names(weights))],
-             risk = meta$risk[order(names(meta$risk))],
-             outcome_type = outcome_type,
-             folds = folds,
-             x = setdiff(names(data), target),
-             discrete = discrete)
+  if (length(library) > 1) {
+    resampling <- make_mlr3_resampling(task, folds)
+
+    meta <- compute_super_learner_weights(
+      lapply(ensemble, function(algo)
+        mlr3::resample(task, algo, resampling)),
+      data[[target]],
+      outcome_type,
+      {
+        if (is.null(group))
+          1:nrow(data)
+        else
+          data[[group]]
+      }
+    )
+
+    if (discrete) {
+      weights <- vector("numeric", length(library))
+      names(weights) <- unlist(lapply(ensemble, function(x) x$id))
+      is_discrete <- which.min(meta$risk)
+      weights[is_discrete] <- 1
+      ensemble <- lapply(ensemble[is_discrete], function(algo) algo$train(task))
+      meta$metalearner <- NULL
+    } else {
+      ensemble <- lapply(ensemble, function(algo) algo$train(task))
+      weights <- as.matrix(coef(meta$metalearner$model))
+      weights <- weights[rownames(weights) %in% unlist(lapply(ensemble, function(x) x$id)), 1]
+      weights <- weights / sum(weights)
+    }
+
+    sl <- list(
+      learners = ensemble,
+      metalearner = meta$metalearner,
+      weights = weights[order(names(weights))],
+      risk = meta$risk[order(names(meta$risk))],
+      outcome_type = outcome_type,
+      folds = folds,
+      x = setdiff(names(data), target),
+      discrete = discrete
+    )
+  }
 
   class(sl) <- "mlr3superlearner"
 

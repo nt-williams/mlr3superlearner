@@ -1,14 +1,16 @@
 Package: mlr3superlearner
 Type: Package
 Title: Super Learner Fitting and Prediction
-Version: 0.1.1
+Version: 0.1.4
 Authors@R: 
     c(person(given = "Nicholas",
              family = "Williams",
              role = c("aut", "cre", "cph"),
              email = "ntwilliams.personal@gmail.com", 
              comment = c(ORCID = "0000-0002-1378-4831")))
-Description: An implementation of the Super Learner prediction algorithm using the \code{mlr3} framework.
+Description: An implementation of the Super Learner prediction algorithm from
+  van der Laan, Polley, and Hubbard (2007) <doi:10.2202/1544-6115.1309 
+  using the 'mlr3' framework. 
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
@@ -22,7 +24,9 @@ Imports:
     paradox,
     R6,
     mlr3misc
-RoxygenNote: 7.3.1
+    glmnet,
+    mlr3pipelines
+RoxygenNote: 7.3.2
 Depends: 
     mlr3learners
 Suggests: 
