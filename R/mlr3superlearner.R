@@ -17,6 +17,8 @@
 #' @param newdata [\code{list}]\cr
 #'  A \code{list} of \code{data.frames} to generate predictions from.
 #' @param wts [\code{character(1)}]\cr
+#'  Name of a variable in \code{data} that contains case weights. The user needs to ensure that
+#'  the weights are used by the individual algorithms as expected.
 #' @param group [\code{character(1)}]\cr
 #'  Name of a grouping variable in \code{data}. Assumed to be discrete;
 #'  observations in the same group are treated like a "block" of observations
