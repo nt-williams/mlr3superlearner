@@ -23,7 +23,7 @@ Imports:
     cli,
     paradox,
     R6,
-    mlr3misc
+    mlr3misc,
     glmnet,
     mlr3pipelines
 RoxygenNote: 7.3.2

@@ -19,7 +19,7 @@
 #' @template example
 #' @export
 LearnerRegrSoftBart = R6::R6Class("LearnerRegrSoftBart",
-  inherit = LearnerRegr,
+  inherit = mlr3::LearnerRegr,
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
@@ -69,9 +69,7 @@ LearnerRegrSoftBart = R6::R6Class("LearnerRegrSoftBart",
       model = self$model
       model$dv$vars = setdiff(model$dv$vars, task$target_names)
 
-      pred = mlr3misc::invoke(predict,
-                              model,
-                              newdata = newdata)
+      pred = mlr3misc::invoke(predict, model, newdata = newdata)
 
       list(response = unname(pred$mu_mean))
     }

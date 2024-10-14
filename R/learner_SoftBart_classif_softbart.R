@@ -20,7 +20,7 @@
 #' @template example
 #' @export
 LearnerClassifSoftBart = R6::R6Class("LearnerClassifSoftBart",
-  inherit = LearnerClassif,
+  inherit = mlr3::LearnerClassif,
   public = list(
     #' @description
     #' Creates a new instance of this [R6][R6::R6Class] class.
@@ -70,9 +70,7 @@ LearnerClassifSoftBart = R6::R6Class("LearnerClassifSoftBart",
       model = self$model
       model$dv$vars = setdiff(model$dv$vars, task$target_names)
 
-      pred = mlr3misc::invoke(predict,
-                              model,
-                              newdata = newdata)
+      pred = mlr3misc::invoke(predict, model, newdata = newdata)
       p = matrix(c(pred$p_mean, 1 - pred$p_mean), ncol = 2, nrow = length(pred$p_mean))
       colnames(p) = c("1", "0")
 
