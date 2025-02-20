@@ -36,17 +36,32 @@ devtools::install_github("nt-williams/mlr3superlearner")
 ```{r example}
 library(mlr3superlearner)
 library(mlr3extralearners)
+library(mlr3filters)
+library(mlr3pipelines)
+library(mlr3torch)
 
 # No hyperparameters
 mlr3superlearner(mtcars, "mpg", c("mean", "glm", "svm", "ranger"), "continuous")
 
 # With hyperparameters
+
+# Add layer of feature selection
+filter <- po(
+  "filter",
+  filter = flt("selected_features", learner = lrn("regr.cv_glmnet")),
+  filter.cutoff = 1
+)
+
 fit <- mlr3superlearner(mtcars, "mpg", 
-                        list("mean", "glm", "xgboost", "svm", "earth",
+                        list("mean", "xgboost", "svm", "earth",
+                             list("glm", filter = filter),
                              list("nnet", trace = FALSE),
                              list("ranger", num.trees = 500, id = "ranger1"),
-                             list("ranger", num.trees = 1000, id = "ranger2")), 
-                        "continuous")
+                             list("ranger", num.trees = 1000, id = "ranger2"), 
+                             list("mlp", epochs = 50, validate = 0.3, batch_size = 8, 
+                                  t_opt("adam", lr = 0.1), id = "mlp")), 
+                        "continuous", 
+                        discrete = FALSE)
 
 fit
 
