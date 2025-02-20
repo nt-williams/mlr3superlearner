@@ -29,7 +29,7 @@ available_learners_classif <- function() {
 available_learners_regr <- function() {
   data.table::data.table(
     learner = c("mean", "glm", "glmnet", "cv_glmnet", "knn", "nnet", "ranger", "svm", "xgboost", "earth", "lightgbm", "randomforest", "bart", "gam", "gaussianprocess", "glmboost", "rpart", "mlp"),
-    mlr3_learner = paste0("regr.", c("featureless", "lm", "glmnet", "cv_glmnet", "kknn", "nnet", "ranger", "svm", "xgboost", "earth", "lightgbm", "randomForest", "bart", "gam", "gausspr", "glmboost", "rpart", "mlp")),
+    mlr3_learner = paste0("regr.", c("featureless", "glm", "glmnet", "cv_glmnet", "kknn", "nnet", "ranger", "svm", "xgboost", "earth", "lightgbm", "randomForest", "bart", "gam", "gausspr", "glmboost", "rpart", "mlp")),
     mlr3_package = c("mlr3", rep("mlr3learners", 8), rep("mlr3extralearners", 7), "mlr3", "mlr3torch"),
     learner_package = c("stats", "stats", "glmnet", "glmnet", "kknn", "nnet", "ranger", "e1071", "xgboost", "earth", "lightgbm", "randomForest", "dbarts", "mgcv", "kernlab", "mboost", "rpart", "torch")
   )
